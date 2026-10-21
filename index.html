@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Executivo — NIP | IPASGO Saúde</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+
+<style>
+:root{
+  --green-950:#04211A;--green-900:#062A20;--green-800:#0B3D2E;--green-700:#14523E;
+  --green-600:#0E7A57;--emerald:#10B981;--emerald-dark:#059669;--emerald-soft:#D1FAE5;
+  --gray-50:#F4F7F6;--gray-100:#E8EEEC;--gray-200:#D6E0DD;--gray-400:#9AAEA8;
+  --gray-500:#6B7C77;--gray-700:#3D4F4A;--gray-900:#1D2B27;
+  --white:#FFFFFF;--radius:16px;--radius-sm:10px;
+  --shadow-sm:0 1px 2px rgba(6,42,32,.06),0 1px 3px rgba(6,42,32,.04);
+  --shadow-md:0 4px 16px rgba(6,42,32,.08);
+  --shadow-lg:0 12px 32px rgba(6,42,32,.12);
+  --font:'Inter','Roboto',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--gray-50);color:var(--gray-900);-webkit-font-smoothing:antialiased;line-height:1.5}
+
+/* HEADER */
+.topbar{position:relative;overflow:hidden;background:linear-gradient(118deg,var(--green-950) 0%,var(--green-800) 48%,var(--green-600) 100%);color:#fff;padding:22px 78px 22px 30px;box-shadow:var(--shadow-md)}
+.topbar::after{content:'';position:absolute;right:-110px;top:-140px;width:420px;height:420px;background:radial-gradient(circle,rgba(16,185,129,.42) 0%,rgba(16,185,129,0) 68%);border-radius:50%;pointer-events:none}
+.topbar-inner{position:relative;z-index:2;max-width:1440px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:14px;min-width:220px}
+.brand-logo{width:48px;height:48px;flex:0 0 48px;border-radius:13px;background:linear-gradient(140deg,var(--emerald) 0%,var(--emerald-dark) 100%);display:grid;place-items:center;box-shadow:0 6px 18px rgba(16,185,129,.35)}
+.brand-logo svg{width:24px;height:24px}
+.brand h1{font-size:1.32rem;font-weight:800;letter-spacing:-.4px;line-height:1.15}
+.brand p{font-size:.76rem;color:rgba(255,255,255,.72);font-weight:500}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.status-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.20);padding:8px 14px;border-radius:999px;font-size:.74rem;font-weight:600;color:#EAFBF4;backdrop-filter:blur(6px);white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--emerald);box-shadow:0 0 0 0 rgba(16,185,129,.7);animation:pulse 2s infinite}
+.dot.off{background:#F59E0B;animation:none}
+.dot.err{background:#DC2626;animation:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(16,185,129,.65)}70%{box-shadow:0 0 0 10px rgba(16,185,129,0)}100%{box-shadow:0 0 0 0 rgba(16,185,129,0)}}
+.btn{font-family:var(--font);font-size:.78rem;font-weight:600;border:none;border-radius:9px;padding:10px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:transform .15s ease,box-shadow .2s ease,background .2s ease,color .2s ease;white-space:nowrap}
+.btn:active{transform:translateY(1px)}
+.btn svg{width:14px;height:14px}
+.btn-light{background:#fff;color:var(--green-800);box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.btn-light:hover{background:var(--emerald-soft)}
+.btn-outline{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.30)}
+.btn-outline:hover{background:rgba(255,255,255,.18)}
+.btn-emerald{background:linear-gradient(135deg,#0E7A57,#059669);color:#fff;box-shadow:0 4px 12px rgba(5,150,105,.25)}
+.btn-emerald:hover{box-shadow:0 6px 18px rgba(5,150,105,.35)}
+.btn-primary{background:linear-gradient(135deg,var(--green-600),var(--emerald-dark));color:#fff;box-shadow:0 6px 16px rgba(14,122,87,.28)}
+.btn-primary:hover{box-shadow:0 9px 24px rgba(14,122,87,.38)}
+.btn-ghost{background:var(--gray-100);color:var(--green-800);border:1px solid var(--gray-200)}
+.btn-ghost:hover{background:var(--gray-200)}
+.btn-danger{background:#DC2626;color:#fff;box-shadow:0 4px 12px rgba(220,38,38,.3)}
+.btn-danger:hover{background:#B91C1C}
+.btn-icon{padding:6px;border-radius:7px;background:transparent;border:1px solid var(--gray-200);color:var(--gray-600);cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.btn-icon:hover{background:var(--emerald-soft);border-color:var(--emerald);color:var(--emerald-dark)}
+.btn-icon.del:hover{background:#FEE2E2;border-color:#DC2626;color:#DC2626}
+.btn-icon svg{width:15px;height:15px}
+
+/* LOGO IPASGO — canto superior direito */
+.topbar-logo{
+  position:absolute;
+  top:5px;
+  right:5px;
+  width:58px;
+  height:58px;
+  z-index:30;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  border-radius:12px;
+}
+.topbar-logo img{
+  max-width:100%;
+  max-height:100%;
+  width:auto;
+  height:auto;
+  object-fit:contain;
+  display:block;
+  background:transparent;
+  border:none;
+  padding:0;
+  mix-blend-mode:multiply;
+}
+
+/* LAYOUT */
+.container{max-width:1440px;margin:0 auto;padding:24px 30px 70px;transition:opacity .3s}
+.container.hidden{display:none}
+.section-title{display:flex;align-items:center;gap:10px;font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--green-700);margin:28px 0 12px}
+.section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--gray-200),transparent)}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-top:6px}
+@media (min-width:1400px){.kpi-grid{grid-template-columns:repeat(5,1fr)}}
+.kpi-card{background:var(--white);border:1px solid var(--gray-100);border-radius:var(--radius);padding:18px 18px 16px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;transition:transform .2s ease,box-shadow .25s ease}
+.kpi-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.kpi-card::before{content:'';position:absolute;inset:0 auto 0 0;width:4px;background:linear-gradient(180deg,var(--emerald),var(--green-700));opacity:.9}
+.kpi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.kpi-icon{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:var(--emerald-soft);color:var(--green-700)}
+.kpi-icon svg{width:19px;height:19px}
+.kpi-icon.alt{background:#E4EFEA;color:var(--green-800)}
+.kpi-icon.neutral{background:var(--gray-100);color:var(--gray-500)}
+.kpi-tag{font-size:.64rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:var(--gray-100);color:var(--gray-500)}
+.kpi-tag.up{background:var(--emerald-soft);color:var(--emerald-dark)}
+.kpi-label{font-size:.76rem;font-weight:600;color:var(--gray-500)}
+.kpi-value{font-size:1.95rem;font-weight:800;letter-spacing:-1px;color:var(--green-900);line-height:1.15;margin-top:2px}
+.kpi-sub{font-size:.7rem;color:var(--gray-400);font-weight:500;margin-top:4px}
+.kpi-bar{height:6px;border-radius:999px;background:var(--gray-100);margin-top:12px;overflow:hidden}
+.kpi-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--green-600),var(--emerald));transition:width .6s cubic-bezier(.22,1,.36,1)}
+
+/* PLANOS EM DESTAQUE — VERSÃO ACUMULATIVA */
+.planos-bar{display:flex;flex-direction:column;gap:14px;padding:20px 22px;background:linear-gradient(180deg,#FBFDFC,#FFFFFF);border:1px solid var(--gray-100);border-radius:var(--radius);box-shadow:var(--shadow-sm);margin-top:22px}
+.planos-bar-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.planos-bar-label{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--green-700);display:flex;align-items:center;gap:6px}
+.planos-bar-label svg{width:16px;height:16px;color:var(--emerald-dark)}
+.planos-bar-tag{font-size:.66rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:var(--emerald-soft);color:var(--emerald-dark)}
+.planos-bar-total{font-size:.76rem;font-weight:600;color:var(--gray-500)}
+.planos-bar-total b{color:var(--green-800);font-weight:800}
+
+.planos-cumulative{display:flex;height:36px;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(6,42,32,.08);border:1px solid var(--gray-200);background:var(--gray-100)}
+.planos-cumulative-seg{position:relative;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:800;color:#fff;transition:filter .18s ease,transform .18s ease;cursor:default;overflow:hidden;white-space:nowrap}
+.planos-cumulative-seg:hover{filter:brightness(1.12);transform:scaleY(1.04)}
+.planos-cumulative-seg span{padding:0 8px;text-shadow:0 1px 2px rgba(0,0,0,.18)}
+.planos-cumulative-seg[data-cumulative]::after{content:attr(data-cumulative);position:absolute;right:6px;top:2px;font-size:.58rem;font-weight:700;opacity:.85;letter-spacing:.3px}
+
+.planos-cumulative-legend{display:flex;gap:8px;flex-wrap:wrap}
+.planos-leg-item{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:8px;background:#fff;border:1px solid var(--gray-200);font-size:.74rem;font-weight:600;color:var(--gray-700);box-shadow:var(--shadow-sm);transition:transform .15s ease}
+.planos-leg-item:hover{transform:translateY(-2px)}
+.planos-leg-swatch{width:10px;height:10px;border-radius:3px;flex:0 0 10px}
+.planos-leg-name{font-weight:700;color:var(--green-900)}
+.planos-leg-count{color:var(--green-700);font-weight:700}
+.planos-leg-cum{background:var(--emerald-soft);color:var(--emerald-dark);padding:2px 8px;border-radius:6px;font-size:.68rem;font-weight:800}
+.plano-empty{padding:14px 4px;color:var(--gray-400);font-size:.82rem;font-weight:500;font-style:italic}
+
+/* PAINEL PLANOS DISTINTOS */
+.distintos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding:20px 22px}
+.distinto-card{background:linear-gradient(180deg,#FFFFFF,#FAFCFB);border:1px solid var(--gray-100);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow-sm);transition:transform .18s ease,box-shadow .22s ease,border-color .2s ease;position:relative;overflow:hidden}
+.distinto-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--emerald-soft)}
+.distinto-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--emerald),var(--green-700))}
+.distinto-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.distinto-name{font-size:.86rem;font-weight:700;color:var(--green-900);line-height:1.25;word-break:break-word}
+.distinto-badge{font-size:.66rem;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--emerald-soft);color:var(--emerald-dark);white-space:nowrap}
+.distinto-count{font-size:1.6rem;font-weight:800;letter-spacing:-.5px;color:var(--green-800);line-height:1;margin-bottom:6px}
+.distinto-count small{font-size:.72rem;font-weight:600;color:var(--gray-400);letter-spacing:0;margin-left:4px}
+.distinto-bar{height:6px;border-radius:999px;background:var(--gray-100);overflow:hidden;margin-top:6px}
+.distinto-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--green-600),var(--emerald));transition:width .6s cubic-bezier(.22,1,.36,1)}
+.distinto-meta{display:flex;justify-content:space-between;font-size:.68rem;font-weight:600;color:var(--gray-500);margin-top:6px}
+
+/* PANEL */
+.panel{background:var(--white);border:1px solid var(--gray-100);border-radius:var(--radius);box-shadow:var(--shadow-sm);margin-top:22px;overflow:hidden}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:18px 22px;border-bottom:1px solid var(--gray-100);background:linear-gradient(180deg,#FBFDFC,#FFFFFF)}
+.panel-head h2{font-size:.98rem;font-weight:700;color:var(--green-900);display:flex;align-items:center;gap:9px}
+.panel-head h2 svg{width:18px;height:18px;color:var(--emerald-dark)}
+.panel-head p{font-size:.76rem;color:var(--gray-500);margin-top:3px;font-weight:500}
+
+/* FORM */
+.form-body{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px;padding:20px 22px 24px;transition:max-height .35s ease,opacity .25s ease,padding .3s ease;max-height:1400px;opacity:1;overflow:hidden}
+.form-body.collapsed{max-height:0;opacity:0;padding-top:0;padding-bottom:0}
+.field{display:flex;flex-direction:column;gap:5px}
+.field.full{grid-column:1/-1}
+.field label{font-size:.72rem;font-weight:700;color:var(--green-800);letter-spacing:.3px;text-transform:uppercase}
+.field label .req{color:#DC2626;margin-left:2px}
+.field input,.field select,.field textarea{font-family:var(--font);font-size:.84rem;font-weight:500;color:var(--gray-900);background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-sm);padding:10px 12px;outline:none;transition:border-color .18s,box-shadow .18s,background .18s;width:100%}
+.field textarea{resize:vertical;min-height:80px;line-height:1.5}
+.field input:focus,.field select:focus,.field textarea:focus{background:#fff;border-color:var(--emerald);box-shadow:0 0 0 3px rgba(16,185,129,.16)}
+.form-actions{grid-column:1/-1;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;padding-top:16px;border-top:1px dashed var(--gray-200);margin-top:4px}
+
+/* FILTERS */
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr 1fr auto;gap:10px;padding:18px 22px;background:linear-gradient(180deg,#FBFDFC,#FFFFFF);border-bottom:1px solid var(--gray-100);align-items:end}
+.filters .date-field{display:flex;flex-direction:column;gap:4px}
+.filters .date-field label{font-size:.66rem;font-weight:700;color:var(--green-800);letter-spacing:.4px;text-transform:uppercase}
+.search-wrap{position:relative}
+.search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--gray-400);pointer-events:none}
+.search-wrap input{font-family:var(--font);font-size:.84rem;font-weight:500;width:100%;padding:10px 13px 10px 38px;border-radius:var(--radius-sm);border:1px solid var(--gray-200);background:var(--gray-50);outline:none}
+.search-wrap input:focus{background:#fff;border-color:var(--emerald);box-shadow:0 0 0 3px rgba(16,185,129,.16)}
+.filter-select,.filter-date{font-family:var(--font);font-size:.8rem;font-weight:600;color:var(--green-800);background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-sm);padding:10px 12px;outline:none;cursor:pointer;width:100%}
+.filter-select:focus,.filter-date:focus{background:#fff;border-color:var(--emerald);box-shadow:0 0 0 3px rgba(16,185,129,.16)}
+.filter-reset{height:40px;padding:0 14px}
+
+/* CHARTS */
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:22px}
+.chart-card{background:var(--white);border:1px solid var(--gray-100);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:18px 20px 14px}
+.chart-card h3{font-size:.84rem;font-weight:700;color:var(--green-900);display:flex;align-items:center;gap:8px}
+.chart-card h3 svg{width:15px;height:15px;color:var(--emerald-dark)}
+.chart-card .chart-hint{font-size:.7rem;color:var(--gray-400);font-weight:500;margin-top:2px;margin-bottom:12px}
+.chart-box{position:relative;height:250px}
+
+/* TABLE */
+.table-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:14px 22px;border-bottom:1px solid var(--gray-100)}
+.table-count{font-size:.76rem;font-weight:600;color:var(--gray-500)}
+.table-count b{color:var(--green-800)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.legend-item{display:inline-flex;align-items:center;gap:6px;font-size:.7rem;font-weight:600;color:var(--gray-500)}
+.legend-swatch{width:9px;height:9px;border-radius:3px}
+.table-scroll{overflow-x:auto;max-height:640px;overflow-y:auto}
+table{width:100%;border-collapse:separate;border-spacing:0;min-width:1440px;font-size:.8rem}
+thead th{position:sticky;top:0;z-index:5;background:var(--green-800);color:#EAFBF4;text-align:left;font-size:.66rem;font-weight:700;letter-spacing:.9px;text-transform:uppercase;padding:13px 14px;white-space:nowrap}
+thead th:first-child{padding-left:22px}
+thead th:last-child{padding-right:22px}
+tbody td{padding:12px 14px;border-bottom:1px solid var(--gray-100);vertical-align:top;color:var(--gray-700);font-weight:500}
+tbody td:first-child{padding-left:22px}
+tbody td:last-child{padding-right:22px}
+tbody tr{transition:background .16s ease}
+tbody tr:nth-child(even){background:#FAFCFB}
+tbody tr:hover{background:var(--emerald-soft)}
+.cell-date{white-space:nowrap;font-weight:700;color:var(--green-800)}
+.cell-demanda{font-weight:700;color:var(--green-700);font-variant-numeric:tabular-nums;white-space:nowrap}
+.cell-benef{font-weight:600;color:var(--gray-900);min-width:150px}
+.cell-plano{min-width:130px}
+.cell-desc{min-width:280px;max-width:380px;line-height:1.5;color:var(--gray-500);font-weight:400}
+.cell-obj{min-width:140px}
+.cell-regiao{white-space:nowrap;font-weight:600;color:var(--gray-700)}
+.cell-actions{white-space:nowrap;width:80px}
+.cell-actions .btn-icon{margin-right:3px}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:.66rem;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:5px 10px;border-radius:999px;white-space:nowrap}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.badge-assist{background:var(--emerald-soft);color:var(--emerald-dark)}
+.badge-nao-assist{background:#E7ECEA;color:var(--green-700)}
+.area-chip{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.4px;padding:5px 10px;border-radius:8px;background:var(--green-800);color:#D1FAE5;white-space:nowrap}
+.area-chip.alt{background:var(--green-600);color:#fff}
+.plano-chip{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.3px;padding:4px 9px;border-radius:6px;background:#D1FAE5;color:#065F46;white-space:nowrap;border:1px solid #6EE7B7}
+.empty-row td{text-align:center;padding:56px 20px;color:var(--gray-400);font-weight:600;font-size:.85rem}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(6,42,32,.55);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;animation:fadeIn .2s ease}
+.modal-overlay.active{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:#fff;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.3);max-width:820px;width:100%;max-height:90vh;overflow-y:auto;animation:slideUp .25s cubic-bezier(.22,1,.36,1)}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:20px 24px;border-bottom:1px solid var(--gray-100);background:linear-gradient(180deg,#FBFDFC,#FFFFFF)}
+.modal-head h3{font-size:1rem;font-weight:700;color:var(--green-900);display:flex;align-items:center;gap:9px}
+.modal-head h3 svg{width:18px;height:18px;color:var(--emerald-dark)}
+.modal-close{background:transparent;border:none;cursor:pointer;color:var(--gray-500);padding:6px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:var(--gray-100);color:var(--gray-900)}
+.modal-body{padding:22px 24px}
+.modal-form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.modal-form .full{grid-column:1/-1}
+.modal-foot{display:flex;gap:10px;justify-content:flex-end;padding:16px 24px;border-top:1px solid var(--gray-100);background:var(--gray-50)}
+.modal.confirm{max-width:440px}
+.modal.confirm .modal-body{text-align:center;padding:26px 24px}
+.modal.confirm .warn-icon{width:56px;height:56px;margin:0 auto 14px;border-radius:50%;background:#FEE2E2;display:grid;place-items:center;color:#DC2626}
+.modal.confirm .warn-icon svg{width:28px;height:28px}
+.modal.confirm h3{font-size:1.05rem;font-weight:700;color:var(--gray-900);margin-bottom:8px}
+.modal.confirm p{font-size:.85rem;color:var(--gray-500);line-height:1.5}
+.modal.confirm .rec-info{margin-top:14px;padding:12px;background:var(--gray-50);border-radius:10px;font-size:.78rem;text-align:left;color:var(--gray-700)}
+.modal.confirm .rec-info b{color:var(--green-800);display:block;margin-bottom:4px}
+
+/* TOAST */
+.toast-wrap{position:fixed;right:22px;bottom:22px;z-index:10000;display:flex;flex-direction:column;gap:10px}
+.toast{display:flex;align-items:center;gap:11px;background:var(--green-900);color:#fff;padding:13px 18px;border-radius:12px;font-size:.82rem;font-weight:600;box-shadow:var(--shadow-lg);border-left:4px solid var(--emerald);animation:slideIn .3s cubic-bezier(.22,1,.36,1);max-width:340px}
+.toast.error{border-left-color:#DC2626}
+.toast.warn{border-left-color:#F59E0B}
+.toast svg{width:18px;height:18px;flex:0 0 18px}
+.toast.error svg{color:#F87171}
+.toast.warn svg{color:#FCD34D}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+
+/* SYNC INDICATOR */
+.save-indicator{position:fixed;left:22px;bottom:22px;z-index:9998;background:var(--green-900);color:#D1FAE5;padding:8px 14px;border-radius:999px;font-size:.68rem;font-weight:700;letter-spacing:.4px;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow-md);opacity:.94}
+.save-indicator svg{width:13px;height:13px;color:var(--emerald)}
+.save-indicator.saving{background:#92400E;color:#FEF3C7}
+.save-indicator.error{background:#991B1B;color:#FEE2E2}
+
+@media (max-width:1280px){.filters{grid-template-columns:1fr 1fr 1fr 1fr}.filters .search-wrap{grid-column:1/-1}.filter-reset{grid-column:1/-1;justify-self:end}}
+@media (max-width:760px){
+  .topbar{padding:16px 70px 16px 16px}
+  .topbar-logo{width:48px;height:48px;top:6px;right:6px;border-radius:10px}
+  .container{padding:18px 14px 60px}
+  .brand h1{font-size:1.08rem}.brand p{font-size:.7rem}
+  .header-right{width:100%}.status-pill{flex:1;justify-content:center}
+  .kpi-grid{grid-template-columns:1fr 1fr;gap:10px}.kpi-value{font-size:1.55rem}
+  .filters{grid-template-columns:1fr;padding:14px}.filter-reset{width:100%;justify-self:stretch}
+  .panel-head,.panel-body,.table-toolbar{padding-left:14px;padding-right:14px}
+  .form-body{padding:16px 14px 20px;grid-template-columns:1fr}
+  .charts-grid{grid-template-columns:1fr}
+  .toast-wrap{left:14px;right:14px;bottom:14px}.toast{max-width:100%}
+  .save-indicator{left:14px;bottom:76px}
+  .modal-form{grid-template-columns:1fr}
+  .planos-cumulative{height:30px}
+  .planos-cumulative-seg{font-size:.6rem}
+  .distintos-grid{grid-template-columns:1fr;padding:16px 14px}
+}
+@media (max-width:460px){.kpi-grid{grid-template-columns:1fr}}
+
+@media print{
+  body{background:#fff}
+  .topbar{background:var(--green-800) !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .topbar-logo{display:none !important}
+  .filters,.form-actions,.btn,.toast-wrap,#formPanel,.save-indicator,.cell-actions,.modal-overlay{display:none !important}
+  .panel,.kpi-card,.chart-card,.planos-bar{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
+  .table-scroll{max-height:none;overflow:visible}
+  thead th{position:static}
+  .container{padding:0}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-logo" aria-hidden="true">
+    <img src="https://play-lh.googleusercontent.com/nNX3uE1J5d2IA3aywlINCxcfc-y2uKxo5QcH4GFK1R4AJZj_4RhlG6OYL6_78pAY1lsAWZrblOuiENNj8WDgGw=w240-h480-rw"
+         srcset="https://play-lh.googleusercontent.com/nNX3uE1J5d2IA3aywlINCxcfc-y2uKxo5QcH4GFK1R4AJZj_4RhlG6OYL6_78pAY1lsAWZrblOuiENNj8WDgGw=w480-h960-rw 2x"
+         alt="IPASGO Saúde" itemprop="image">
+  </div>
+  <div class="topbar-inner">
+    <div class="brand">
+      <button class="btn btn-outline" id="btnToggleMenu" title="Ocultar/Mostrar menu" style="padding:9px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 3v18h18"/><path d="M7 15l3.5-4 3 2.5L20 7"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Dashboard Executivo — NIP</h1>
+        <p>Notificações de Intermediação Preliminar · IPASGO Saúde</p>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <span class="status-pill"><span class="dot" id="syncDot"></span><span id="statusText">Carregando base...</span></span>
+      <button class="btn btn-outline" id="btnExportCSV" title="Exportar CSV">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        CSV
+      </button>
+      <button class="btn btn-emerald" id="btnExportExcel" title="Exportar Excel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13l6 6M15 13l-6 6"/></svg>
+        Excel
+      </button>
+      <button class="btn btn-light" id="btnExportPDF" title="Exportar PDF (texto completo)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        PDF
+      </button>
+      <button class="btn btn-outline" id="btnPrint" title="Imprimir">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="mainContainer">
+
+  <div class="section-title">Indicadores Principais</div>
+  <section class="kpi-grid">
+    <article class="kpi-card">
+      <div class="kpi-top">
+        <span class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg></span>
+        <span class="kpi-tag up">Base filtrada</span>
+      </div>
+      <p class="kpi-label">Total de NIPs</p>
+      <h3 class="kpi-value" id="kpiTotal">0</h3>
+      <p class="kpi-sub" id="kpiTotalSub">Registros na base</p>
+      <div class="kpi-bar"><span style="width:100%"></span></div>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-top">
+        <span class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.7-7.5 1.1-1.1a5.5 5.5 0 0 0 0-7.8z"/></svg></span>
+        <span class="kpi-tag" id="tagAssist">0%</span>
+      </div>
+      <p class="kpi-label">Demandas Assistenciais</p>
+      <h3 class="kpi-value" id="kpiAssist">0</h3>
+      <p class="kpi-sub">Cobertura, autorizações e atendimento</p>
+      <div class="kpi-bar"><span id="barAssist" style="width:0%"></span></div>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-top">
+        <span class="kpi-icon alt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="15" x2="10" y2="15"/></svg></span>
+        <span class="kpi-tag" id="tagNaoAssist">0%</span>
+      </div>
+      <p class="kpi-label">Demandas Não Assistenciais</p>
+      <h3 class="kpi-value" id="kpiNaoAssist">0</h3>
+      <p class="kpi-sub">Cobranças, contratos e faturamento</p>
+      <div class="kpi-bar"><span id="barNaoAssist" style="width:0%"></span></div>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-top">
+        <span class="kpi-icon neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
+        <span class="kpi-tag">Setores</span>
+      </div>
+      <p class="kpi-label">Áreas Envolvidas</p>
+      <h3 class="kpi-value" id="kpiAreas">0</h3>
+      <p class="kpi-sub" id="kpiRegioesSub">0 regiões atendidas</p>
+      <div class="kpi-bar"><span style="width:70%"></span></div>
+    </article>
+    <article class="kpi-card">
+      <div class="kpi-top">
+        <span class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg></span>
+        <span class="kpi-tag up">Planos</span>
+      </div>
+      <p class="kpi-label">Planos Distintos</p>
+      <h3 class="kpi-value" id="kpiPlanos">0</h3>
+      <p class="kpi-sub" id="kpiPlanosSub">0 registros com plano informado</p>
+      <div class="kpi-bar"><span id="barPlanos" style="width:0%"></span></div>
+    </article>
+  </section>
+
+  <!-- PLANOS EM DESTAQUE — ACUMULATIVO -->
+  <section class="planos-bar" id="planosBar">
+    <div class="planos-bar-head">
+      <span class="planos-bar-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+        Planos em Destaque
+      </span>
+      <span class="planos-bar-tag">Acumulativo</span>
+      <span class="planos-bar-total" id="planosTotalInfo">—</span>
+    </div>
+
+    <div class="planos-cumulative" id="planosCumulativeBar">
+      <div style="display:flex;align-items:center;justify-content:center;width:100%;color:var(--gray-400);font-size:.75rem;font-weight:600;font-style:italic">Nenhum plano informado ainda.</div>
+    </div>
+
+    <div class="planos-cumulative-legend" id="planosCumulativeLegend"></div>
+  </section>
+
+  <!-- PAINEL PLANOS DISTINTOS — TOTAIS INDIVIDUAIS -->
+  <section class="panel" id="planosDistintosPanel" style="margin-top:18px">
+    <div class="panel-head">
+      <div>
+        <h2>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+          Planos Distintos — Totais Individuais
+        </h2>
+        <p id="planosDistintosSub">Cada plano com seu total individual de NIPs</p>
+      </div>
+      <span class="kpi-tag up" id="planosDistintosTag">0 planos</span>
+    </div>
+    <div class="distintos-grid" id="planosDistintosGrid">
+      <div class="plano-empty">Nenhum plano informado ainda.</div>
+    </div>
+  </section>
+
+  <section class="panel" id="formPanel">
+    <div class="panel-head">
+      <div>
+        <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Adicionar Nova NIP</h2>
+        <p>Registros salvos automaticamente no navegador e sincronizados com o servidor (se configurado)</p>
+      </div>
+      <button class="btn btn-ghost" id="toggleForm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg><span id="toggleFormLabel">Ocultar formulário</span></button>
+    </div>
+    <form class="form-body" id="nipForm" autocomplete="off" novalidate>
+      <div class="field"><label for="fData">Data de Notificação <span class="req">*</span></label><input type="date" id="fData" required></div>
+      <div class="field"><label for="fDemanda">Nº Demanda <span class="req">*</span></label><input type="text" id="fDemanda" placeholder="Ex.: 14163785" required></div>
+      <div class="field"><label for="fBeneficiario">Beneficiário <span class="req">*</span></label><input type="text" id="fBeneficiario" placeholder="Nome completo" required></div>
+      <div class="field"><label for="fPlano">Plano do Beneficiário</label><input type="text" id="fPlano" list="listaPlanos" placeholder="Ex.: IPASGO Saúde Básico, Plus..."><datalist id="listaPlanos"></datalist></div>
+      <div class="field"><label for="fNatureza">Natureza <span class="req">*</span></label>
+        <select id="fNatureza" required><option value="">Selecione...</option><option value="Assistencial">Assistencial</option><option value="Não assistencial">Não assistencial</option></select>
+      </div>
+      <div class="field"><label for="fObjeto">Objeto <span class="req">*</span></label><input type="text" id="fObjeto" placeholder="Ex.: Negativa de cobertura" required></div>
+      <div class="field"><label for="fCausa">Causa <span class="req">*</span></label><input type="text" id="fCausa" placeholder="Ex.: Cobrança indevida" required></div>
+      <div class="field"><label for="fArea">Área Envolvida <span class="req">*</span></label><input type="text" id="fArea" list="listaAreas" placeholder="Ex.: COARR, COARA, COGAT" required><datalist id="listaAreas"></datalist></div>
+      <div class="field"><label for="fRegiao">Região <span class="req">*</span></label><input type="text" id="fRegiao" list="listaRegioes" placeholder="Ex.: Goiânia/GO" required><datalist id="listaRegioes"></datalist></div>
+      <div class="field full"><label for="fDescricao">Descrição da Demanda <span class="req">*</span></label><textarea id="fDescricao" placeholder="Descreva detalhadamente a demanda..." required></textarea></div>
+      <div class="field full"><label for="fObs">Observação</label><input type="text" id="fObs" placeholder="Opcional"></div>
+      <div class="form-actions">
+        <button type="reset" class="btn btn-ghost" id="btnClear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg> Limpar</button>
+        <button type="submit" class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Adicionar à Tabela</button>
+      </div>
+    </form>
+  </section>
+
+  <div class="section-title">Analytics</div>
+  <section class="charts-grid">
+    <div class="chart-card">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.2 15.9A10 10 0 1 1 8 2.8"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg> Distribuição por Natureza</h3>
+      <p class="chart-hint">Assistencial vs. Não Assistencial</p>
+      <div class="chart-box"><canvas id="chartNatureza"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg> Volume por Área Envolvida</h3>
+      <p class="chart-hint">Ranking de demandas por setor</p>
+      <div class="chart-box"><canvas id="chartArea"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Volume por Região</h3>
+      <p class="chart-hint">Concentração geográfica</p>
+      <div class="chart-box"><canvas id="chartRegiao"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg> Volume por Plano</h3>
+      <p class="chart-hint">Ranking de NIPs por plano de saúde</p>
+      <div class="chart-box"><canvas id="chartPlano"></canvas></div>
+    </div>
+  </section>
+
+  <div class="section-title">Base Detalhada</div>
+  <section class="panel">
+    <div class="filters">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="search" placeholder="Buscar por beneficiário, nº demanda, plano, descrição...">
+      </div>
+      <div class="date-field"><label for="dateFrom">Data inicial</label><input type="date" class="filter-date" id="dateFrom"></div>
+      <div class="date-field"><label for="dateTo">Data final</label><input type="date" class="filter-date" id="dateTo"></div>
+      <select class="filter-select" id="filterPlano"><option value="">Todos os planos</option></select>
+      <select class="filter-select" id="filterNatureza"><option value="">Todas as naturezas</option></select>
+      <select class="filter-select" id="filterArea"><option value="">Todas as áreas</option></select>
+      <select class="filter-select" id="filterRegiao"><option value="">Todas as regiões</option></select>
+      <button class="btn btn-ghost filter-reset" id="btnResetFilters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v6h6"/><path d="M3.5 8a9 9 0 1 0 2.1-3.4L3 8"/></svg> Limpar</button>
+    </div>
+    <div class="table-toolbar">
+      <span class="table-count" id="tableCount">Mostrando <b>0</b> de <b>0</b> registros</span>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-swatch" style="background:#10B981"></span> Assistencial</span>
+        <span class="legend-item"><span class="legend-swatch" style="background:#14523E"></span> Não assistencial</span>
+      </div>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th><th>Nº Demanda</th><th>Beneficiário</th><th>Plano</th><th>Descrição</th>
+            <th>Objeto</th><th>Causa</th><th>Natureza</th><th>Área</th><th>Região</th><th>Obs.</th>
+            <th style="text-align:center">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<!-- MODAL DE EDIÇÃO -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg> Editar Registro NIP</h3>
+      <button class="modal-close" id="editModalClose"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <form id="editForm">
+      <div class="modal-body">
+        <div class="modal-form">
+          <input type="hidden" id="eId">
+          <div class="field"><label for="eData">Data de Notificação <span class="req">*</span></label><input type="date" id="eData" required></div>
+          <div class="field"><label for="eDemanda">Nº Demanda <span class="req">*</span></label><input type="text" id="eDemanda" required></div>
+          <div class="field"><label for="eBeneficiario">Beneficiário <span class="req">*</span></label><input type="text" id="eBeneficiario" required></div>
+          <div class="field"><label for="ePlano">Plano do Beneficiário</label><input type="text" id="ePlano" list="listaPlanos"></div>
+          <div class="field"><label for="eNatureza">Natureza <span class="req">*</span></label>
+            <select id="eNatureza" required><option value="Assistencial">Assistencial</option><option value="Não assistencial">Não assistencial</option></select>
+          </div>
+          <div class="field"><label for="eObjeto">Objeto <span class="req">*</span></label><input type="text" id="eObjeto" required></div>
+          <div class="field"><label for="eCausa">Causa <span class="req">*</span></label><input type="text" id="eCausa" required></div>
+          <div class="field"><label for="eArea">Área Envolvida <span class="req">*</span></label><input type="text" id="eArea" list="listaAreas" required></div>
+          <div class="field"><label for="eRegiao">Região <span class="req">*</span></label><input type="text" id="eRegiao" list="listaRegioes" required></div>
+          <div class="field full"><label for="eDescricao">Descrição da Demanda <span class="req">*</span></label><textarea id="eDescricao" required></textarea></div>
+          <div class="field full"><label for="eObs">Observação</label><input type="text" id="eObs"></div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" id="editCancel">Cancelar</button>
+        <button type="submit" class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Salvar alterações</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal confirm">
+    <div class="modal-body">
+      <div class="warn-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <h3>Confirmar exclusão?</h3>
+      <p>Esta ação <b>não pode ser desfeita</b>. O registro será removido permanentemente da base.</p>
+      <div class="rec-info" id="deleteRecInfo"></div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn btn-ghost" id="deleteCancel">Cancelar</button>
+      <button type="button" class="btn btn-danger" id="deleteConfirm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg> Excluir permanentemente</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+<div class="save-indicator" id="saveIndicator">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+  <span id="saveStatus">Carregando...</span>
+</div>
+
+<script>
+/* ============================================================
+   CONFIGURAÇÃO DA API
+   ============================================================ */
+const API_URL = '';
+
+/* ============================================================
+   BASE DE DADOS
+   ============================================================ */
+const RAW_DATA = [
+["2026-08-18","14087924","VALENTINA FONSECA FLEURY","Interlocutora, que se identifica como mãe da beneficiária, questiona a falta de atendimento para Tomografia Dentária, conforme solicitação médica, informando que a operadora alegou ter encaminhado a autorização ao e-mail do dentista, que não recebeu o documento, e que também não houve comunicação sobre eventual negativa, para realização na cidade de Anápolis/GO.","TOMOGRAFIA DENTÁRIA","NEGATIVA DE COBERTURA","Assistencial","COARA","ANÁPOLIS/GO","",""],
+["2026-08-18","14088726","ELIANE MARINA REIS DO PRADO","Beneficiária necessita de tireoidectomia urgente devido a bócio multinodular volumoso com risco respiratório e questiona a negativa de cobertura para Bisturi Harmônico e monitorização do nervo laríngeo, prescritos pelo médico, além da cobrança particular de R$ 500,00 para anestesista.","OPME - BISTURI HARMÔNICO","NEGATIVA DE COBERTURA","Assistencial","COARA","PALMEIRAS DE GOIÁS/GO","",""],
+["2026-08-18","14088779","NATHANY MANUELA RODRIGUES DA SILVA","Beneficiário questiona a negativa de cobertura para Fonoaudiologia ABA e Psicologia ABA, prescritas pela Dra. Thainá Maia, sob a justificativa de ausência de prestador credenciado na rede da operadora, para realização na cidade de Anicuns/GO.","FONOAUDIOLOGIA ABA, PSICÓLOGO ABA","INSUFICIÊNCIA DE REDE","Assistencial","COGAT/CODIN","ANICUNS/GO","",""],
+["2026-08-18","14088792","ANA FLAVIA CARDOSO","Beneficiária solicita cobertura para realização de procedimento indicado por orientação médica, em razão de diagnóstico de neoplasia de epitélio escamoso metaplásico com focos de ocupação glandular.","TRAQUELECTOMIA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-18","14089068","LARISSA SOARES MARTINS","Beneficiária questiona a cobrança particular do exame de Covid-19 realizado durante atendimento de urgência no Hospital Santa Bárbara, sob a alegação de ausência de cobertura pelo plano de saúde.","REEMBOLSO EXAME COVID","SOLICITAÇÃO DE REEMBOLSO","Assistencial","COGAT","GOIÂNIA/GO","",""],
+["2026-08-18","14089110","WILLIAM TEIXEIRA PIRES","Beneficiário questiona a cobrança de multa e juros em boleto referente à mensalidade de julho, após falha no débito automático causada por indisponibilidade do sistema do IPASGO.","SOLICITAÇÃO DE BOLETOS","MENSALIDADES OU OUTRAS COBRANÇAS","Não assistencial","COARR","GOIÂNIA/GO","",""],
+["2026-08-19","14089979","CAMILLA ALVES DA SILVA","A beneficiária questiona a negativa do PET-CT, alegando ausência de fundamentação técnica individualizada e de esclarecimento sobre os critérios utilizados.","PET-CT","NEGATIVA DO PROCEDIMENTO","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-19","14090417","LILIAN MANRIQUE PINTO DE MORAES","A beneficiária relata atraso no recebimento do Letrozol 2,5 mg, informando que o procedimento para recebimento do medicamento foi alterado sem comunicação prévia pelo plano.","MEDICAMENTO","ENTREGA DE MEDICAMENTO","Assistencial","COPES","TRINDADE/GO","",""],
+["2026-08-19","14090503","FRANCISCA ALVES DE ARAUJO","Interlocutora, representante legal da beneficiária, questiona a falta de atendimento para Endocrinologista.","CONSULTA COM ENDOCRINOLOGISTA","INSUFICIÊNCIA DE REDE","Assistencial","COGAT/CODIN","ITABERAÍ/GO","",""],
+["2026-08-19","14091027","JAQUELINE ALVES AMATTE","Beneficiário questiona a indisponibilidade de consulta com endocrinopediatra para seu filho.","CONSULTA COM ENDOCRINOLOGISTA","INSUFICIÊNCIA DE REDE","Assistencial","COGAT/CODIN","GOIÂNIA/GO","",""],
+["2026-08-19","14091178","HELOISA PEREIRA SILVA","Beneficiária questiona débitos em conta não identificados, sendo descontados R$ 254,29 em 10/08/2026 e R$ 294,97 em 11/08/2026.","FINANCEIRO","MENSALIDADES OU OUTRAS COBRANÇAS","Não assistencial","COARR","ANÁPOLIS/GO","",""],
+["2026-08-19","14091472","MARIA XAVIER DE ALMEIDA","Interlocutora, filha da beneficiária, questiona a negativa de cobertura para Tomografia de Coerência Óptica.","TOMOGRAFIA DE COERÊNCIA ÓPTICA","NEGATIVA DE COBERTURA","Assistencial","COARA","BRASÍLIA/DF","",""],
+["2026-08-20","14092123","FERNANDO CORDEIRO DE ARAUJO","Beneficiário, responsável pelo filho diagnosticado com TDAH, questiona a indisponibilidade de vagas para consulta com psicólogo clínico.","CONSULTA COM PSICÓLOGO","INSUFICIÊNCIA DE REDE","Assistencial","CODIN","GOIÂNIA/GO","",""],
+["2026-08-20","14092712","SHIRLEY PEREIRA DUARTE NUNES","Beneficiário questiona a negativa de cobertura para exame solicitado por médico cardiologista.","ANGIOTOMOGRAFIA CORONARIANA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-20","14092731","SHIRLEY PEREIRA DUARTE NUNES","Beneficiário questiona a não autorização de exames de sangue solicitados por médico cardiologista.","TESTOSTERONA TOTAL, TESTOSTERONA LIVRE E PROGESTERONA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-20","14093596","ALINE VIEIRA DE SOUZA","Beneficiária com câncer de mama metastático questiona a demora na autorização da capecitabina.","CAPECITABINA","NEGATIVA DE COBERTURA","Assistencial","COARA","FORMOSA/GO","",""],
+["2026-08-20","14093619","GERALDO MAGELLA FERREIRA NETTO","Beneficiário com quadro de anemia grave questiona a negativa de cobertura para Carboximaltose Férrica.","CARBOXIMALTOSE FÉRRICA 50MG/ML SOL INJ","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-21","14093838","LUCIANA DE SA","Beneficiária questiona a demora na autorização de medicação oral para tratamento oncológico.","TRATAMENTO ONCOLÓGICO","NEGATIVA DE COBERTURA","Assistencial","COARA","APARECIDA DE GOIÂNIA/GO","",""],
+["2026-08-21","14093839","IVONETE RODRIGUES DE OLIVEIRA","Beneficiária, de 68 anos, questiona a negativa de cobertura para cirurgia destinada à recolocação de lente ocular.","RECOLOCAÇÃO DE LENTE OCULAR","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-21","14093838","AURORA SANT ANA PEREIRA","Beneficiária, responsável por uma criança de 3 anos, questiona a demora na disponibilização de medicação por aplicação subcutânea.","IMUNOGLOBULINA","ANÁLISE DE COBERTURA E GARANTIA","Assistencial","COARA/COGAT","GOIÂNIA/GO","",""],
+["2026-08-21","14095346","IVONETE RODRIGUES DE OLIVEIRA","Beneficiária, de 68 anos, questiona a negativa de cobertura para cirurgia destinada à recolocação de lente ocular.","RECOLOCAÇÃO DE LENTE OCULAR","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","Duplicidade",""],
+["2026-08-21","14094885","ANNE CAROLINE SANTANA LEAO","Beneficiária com diagnóstico de obesidade e pré-diabetes questiona a ausência de endocrinologista credenciado.","CONSULTA COM ENDOCRINOLOGISTA","INSUFICIÊNCIA DE REDE","Assistencial","COGAT/CODIN","ANÁPOLIS/GO","",""],
+["2026-08-21","14095211","RENATO SIMAO BERNARDES","Beneficiário questiona a dificuldade para agendamento de consulta de retorno.","CONSULTA COM GASTROENTEROLOGISTA","PRAZOS MÁXIMOS PARA ATENDIMENTO","Assistencial","CODIN","GOIÂNIA/GO","Agendamento de retorno.",""],
+["2026-08-22","14095843","ISABELLA GOMES FONSECA","Beneficiária questiona a dificuldade para agendamento de consulta com endocrinologista pelo IPASGO.","CONSULTA COM ENDOCRINOLOGISTA","INSUFICIÊNCIA DE REDE","Assistencial","COGAT/CODIN","GOIÂNIA/GO","",""],
+["2026-08-23","14095983","JOYCE APARECIDA DA SILVA","Beneficiária questiona a negativa de cobertura para realização de laqueadura tubária.","LAQUEADURA TUBÁRIA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-24","14097749","GUMERCINDO CAETANO DE SOUZA","Beneficiário relata que, desde maio, tenta realizar a substituição do aparelho do sistema de neuroestimulação.","SISTEMA DE NEUROESTIMULAÇÃO","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-24","14097571","MAITE RODRIGUES CASTILHO TEIXEIRA","Responsável por beneficiária questiona a cobrança particular de R$ 1.800,00 exigida por médico para realização de cirurgia.","RECLAMAÇÃO DA CONDUTA DO PRESTADOR","MENSALIDADES OU OUTRAS COBRANÇAS","Não Assistencial","COGAT/OUVID","GOIÂNIA/GO","",""],
+["2026-08-24","14098274","CASSIANE CONCEICAO DOS SANTOS CHAGAS","Beneficiária questiona a negativa de cobertura para realização de exames oftalmológicos.","ESTEREO-FOTO DE PAPILA-MONOCULAR PAQUIMETRIA ULTRASSÔNICA","NEGATIVA DE COBERTURA","Assistencial","COARA","TRINDADE/GO","",""],
+["2026-08-25","14098771","ZELIO CLEBER COSTA","Interlocutora, filha do beneficiário, questiona a negativa de cobertura para materiais necessários à prostatectomia radical laparoscópica.","PROSTATECTOMIA RADICAL LAPAROSCÓPICA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-25","14098830","DANUSA RODRIGUES PEREIRA","Beneficiária questiona a negativa de cobertura para cirurgia de recolocação da lente intraocular.","LENTE INTRAOCULAR","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-25","14100112","ROBERTA VAZ DE AZEVEDO","Beneficiária relata a negativa de autorização para o exame de Ultrassonografia (USG) de Mama.","USG DE MAMAS E AXILAS BILATERAL","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-25","14098830","MARIA DAS GRACAS DE MELO GONCALVES","Beneficiária, de 78 anos, internada em UTI desde 11/08/2026.","OCLUSÃO PERCUTÂNEA","PRAZOS MÁXIMOS PARA ATENDIMENTO","Assistencial","COARA","APARECIDA DE GOIÂNIA/GO","",""],
+["2026-08-26","14100515","ECISLENE PEREIRA DOS SANTOS MARTINS","Beneficiária questiona a cobrança particular de R$ 1.200,00 para realização de biópsia hepática.","RECLAMAÇÃO DA CONDUTA DO PRESTADOR","MENSALIDADES OU OUTRAS COBRANÇAS","Assistencial","COGAT/OUVID","GOIÂNIA/GO","",""],
+["2026-08-26","14100552","THAYS SOUZA DE MELO","Beneficiário questiona desconto indevido de R$ 937,50.","RECLAMAÇÃO DE DESCONTO SEM MOTIVO","MENSALIDADES OU OUTRAS COBRANÇAS","Não Assistencial","COARR","GOIÂNIA/GO","",""],
+["2026-08-26","14102281","VALERIA GONCALVES DE ALMEIDA PAZ","Beneficiário relata que o plano estava bloqueado indevidamente.","SOLICITAÇÃO DE REEMBOLSO REFERENTE A ATENDIMENTO DE PRONTO SOCORRO","PRODUTO OU PLANO","Assistencial","COGAT","GOIÂNIA/GO","",""],
+["2026-08-27","14102591","THAYS SOUZA DE MELO","Interlocutora questiona a negativa da medicação Somatropina.","CONSULTA COM ENDOCRINOLOGISTA PEDIATRA","INSUFICIÊNCIA DE REDE","Assistencial","COGAT/CODIN","GOIÂNIA/GO","",""],
+["2026-08-27","14102718","MARIA DAS GRACAS SOUSA","Beneficiária questiona a falta de atendimento para consulta com médico reumatologista.","CONSULTA COM REUMATOLOGISTA","INSUFICIÊNCIA DE REDE","Assistencial","COGAT/CODIN","ANÁPOLIS/GO","",""],
+["2026-08-27","14102881","WESLEY DA SILVA GUIMARAES","Beneficiário questiona a demora na análise de solicitação de reembolso.","SOLICITAÇÃO DE REEMBOLSO REFERENTE A ATENDIMENTO COM PROCTOLOGISTA","REEMBOLSO","Assistencial","COGAT","RIO VERDE/GO","",""],
+["2026-08-27","14104109","BRUNO HENRIQUE MACHADO OLIVEIRA","Beneficiário questiona a demora para realização de avaliação neuropsicológica.","AVALIAÇÃO NEUROPSICOLÓGICA","INSUFICIÊNCIA DE REDE","Assistencial","COGAT","GOIÂNIA/GO","",""],
+["2026-08-27","14104369","LUZIA GRAZIELLE RIBEIRO DA SILVA","Beneficiário questiona a demora excessiva na indicação de prestador para Manometria Anorretal.","MANOMETRIA ANORRETAL (INDICAÇÃO DE REDE)","INSUFICIÊNCIA DE REDE","Assistencial","COGAT/CODIN","BRASÍLIA/DF","",""],
+["2026-08-27","14104464","JULIA FURTADO BOMFIM","Beneficiária questiona a negativa de cobertura para restauração indireta no dente 47.","CONFECÇÃO DE RESTAURAÇÃO INDIRETA (BLOCO) NO DENTE 47","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-28","14104597","AMANDA MOREIRA","Beneficiária questiona a negativa de cobertura para ultrassonografia (US).","ULTRASSOM (US) PARA IDENTIFICAÇÃO DE CISTO","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-28","11076582","MARIA LUIZA DE OLIVEIRA","Interlocutora questiona a não cobertura para Ferinject.","FERINJECT","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-28","14105343","PEDRO OTAVIO GONCALVES SOUSA","Interlocutora questiona a não cobertura do medicamento Beyfortus (nirsevimabe).","BEYFORTUS (NIRSEVIMABE)","REEMBOLSO","Assistencial","COGAT","GOIÂNIA/GO","",""],
+["2026-08-28","14105656","JOAO VICTOR DE FARIA HEZIN","Beneficiário com suspeita de melanoma cutâneo questiona a demora na autorização de procedimento cirúrgico.","US PARTES MOLES - EXÉRESE","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-29","14106452","EDVAN JULIO NUNES DE SOUSA","Beneficiário com neoplasia maligna de cólon solicita cobertura para cateter Port-a-Cath.","NEGATIVA DE ANESTESIA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-30","14106784","EMMANUEL DE JESUS BISPO FERREIRA","Beneficiário questiona a ausência de atendimento para aplicação de toxina botulínica.","TOXINA BOTULÍNICA","PRAZOS MÁXIMOS PARA ATENDIMENTO","Assistencial","COARA/COGAT/GEJUR","BRASÍLIA/DF","",""],
+["2026-08-31","14106843","CIDALIA LOPES CAVALCANTE","Beneficiária questiona a demora e as exigências para continuidade do fornecimento de medicamento.","MEDICAMENTO USO ORAL PARA TRATAMENTO CÂNCER DE MAMA","REGRAS PARA ACESSO AOS ATENDIMENTOS","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-31","14107202","QUEREN GONCALVES BORGES MARTINS","Beneficiária questiona a demora na autorização do procedimento de retirada endoscópica de duplo J.","RETIRADA ENDOSCÓPICA DE DUPLO J","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-31","14107465","MAITE GARCEZ FERREIRA","Interlocutor questiona a falta de atendimento para terapia com psicólogo.","TERAPIA COM PSICÓLOGO","REGRAS PARA ACESSO AOS ATENDIMENTOS","Assistencial","COGAT","QUIRINÓPOLIS/GO","",""],
+["2026-08-31","14107804","EMANUEL FRANCISCO ALMEIDA ANDRADE","Interlocutora questiona a falta de atendimento para Terapia ABA.","TERAPIA ABA","INSUFICIÊNCIA DE REDE","Assistencial","COGAT/COARA","CAIAPÔNIA/GO","",""],
+["2026-08-31","14107828","MONICA BEATRIZ FERREIRA ARAUJO","Beneficiários questionam a negativa do pedido de permanência no plano.","REGULARIZAÇÃO DE PLANO","CONTRATOS E REGULAMENTOS","Não Assistencial","CONEG","IPORÁ/GO","",""],
+["2026-08-31","14108109","FILEMON OTAVIO FERREIRA GOMES","Beneficiário questiona a falha no sistema da operadora.","AUTORIZAÇÃO DE EXAMES","REGRAS PARA ACESSO AOS ATENDIMENTOS","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-31","14108603","PEDRO COURY DE MORAES","Beneficiário questiona a negativa de autorização das sessões de psicoterapia.","SESSÕES DE PSICOTERAPIA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-08-31","14108643","GERALDA BRITO DOS SANTOS","Beneficiária questiona a demora para reembolso no valor de R$ 19.296,90.","SOLICITAÇÃO DE REEMBOLSO REFERENTE A ATENDIMENTO DE URGÊNCIA E EMERGÊNCIA","REEMBOLSO","Assistencial","COGAT","PALMAS/TO","",""],
+["2026-09-01","14108972","ALICE MARIA AVELAR SERRA","Beneficiária dependente, em tratamento oncológico, solicita reconsideração do indeferimento e reembolso de R$ 3.550,00.","SOLICITAÇÃO DE REEMBOLSO REFERENTE A CATETER PICC","REEMBOLSO","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-01","14109328","CAMILA DIAS FERREIRA DE OLIVEIRA","Beneficiária questiona a negativa de cobertura para implante de DIU hormonal.","DIU MIRENA (31303293)","NEGATIVA DE COBERTURA","Assistencial","COARA","APARECIDA DE GOIÂNIA/GO","",""],
+["2026-09-01","14110262","MATHEUS ARAUJO SILVA","Beneficiário questiona a falta de cobertura para exames de pré-natal.","US OBSTÉTRICA 1° TRIMESTRE (ENDOVAGINAL)","NEGATIVA DE COBERTURA","Assistencial","COARA","ITUMBIARA/GO","",""],
+["2026-09-01","14110551","RAYNE FRANCISCA DE JESUS PAIVA","Beneficiário questiona a exigência de atualização anual do laudo de autismo.","TERAPIA ABA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-01","14110754","IRACEMA LABIAK","Beneficiária questiona a demora no fornecimento de cópia do contrato.","FORNECIMENTO DE CONTRATO","CONTRATOS E REGULAMENTOS","Não Assistencial","CONEG","APARECIDA DE GOIÂNIA/GO","",""],
+["2026-09-02","14112589","YASMIM ALVES FLEURY","Beneficiária questiona cobrança não reconhecida no valor de R$ 338,62.","COBRANÇA INDEVIDA","NEGATIVA DE COBERTURA","Não Assistencial","COARR","GOIÂNIA/GO","",""],
+["2026-09-02","14111224","ERIKA FERNANDA DO VALE NUNES","Beneficiária portadora de Espondilite Anquilosante questiona a cobertura para o medicamento Bimzelx 160 mg.","BIMZELX 160 MG","PRAZOS MÁXIMOS PARA ATENDIMENTO","Assistencial","COARA","INHUMAS/GO","",""],
+["2026-09-02","14112252","JOSE ELENO DOS PASSOS","Interlocutora questiona a manutenção e o restabelecimento do plano de saúde de seu pai.","ATUALIZAÇÃO CADASTRAL","CONTRATOS E REGULAMENTOS","Não Assistencial","CONEG","BRASÍLIA/DF","",""],
+["2026-09-02","14112589","SIRLEIDA ALVES ESPINDOLA","Beneficiária questiona a negativa de cobertura para procedimento de monitoramento.","MONITORIZAÇÃO NEUROFISIOLÓGICA INTRAOPERATÓRIA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-03","14113438","AMANDA KRISTINY SILVA TOLEDO","Responsável pelo beneficiário questiona a negativa de reembolso das despesas com consulta de gastropediatra.","SOLICITAÇÃO DE REEMBOLSO REFERENTE A CONSULTA COM GASTROPEDIATRA E VACINA BEYFORTUS","REEMBOLSO (demanda duplicada)","Assistencial","COGAT","SÃO LUÍS DE MONTES BELOS/GO","",""],
+["2026-09-03","14114010","MARILDA LOPES PENA","Interlocutora questiona a negativa de cobertura para o medicamento Nivolumabe.","NIVOLUMABE","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-03","14114481","ARIANY RAFAELLA NETO SILVA","Beneficiária questiona a falta de garantia de atendimento para tratamento multidisciplinar.","SOLICITAÇÃO DE REEMBOLSO REFERENTE A CONSULTA COM GASTROPEDIATRA E VACINA BEYFORTUS","PRAZOS MÁXIMOS PARA ATENDIMENTO","Assistencial","COGAT","SÃO LUÍS DE MONTES BELOS/GO","",""],
+["2026-09-03","14114010","MARILDA LOPES PENA","Beneficiária questiona a negativa e a demora na autorização de procedimento cirúrgico para reconstrução mamária.","3060226-2 RECONSTRUÇÃO DA MAMA COM PRÓTESE","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-04","14114977","GUILHERME DORNELES STURMER","Interlocutora questiona a não cobertura para consulta com endocrinopediatra.","CONSULTA COM ENDOCRINOLOGISTA PEDIATRA","PRAZOS MÁXIMOS PARA ATENDIMENTO","Assistencial","CODIN/COGAT","APARECIDA DE GOIÂNIA/GO","",""],
+["2026-09-04","14115099","LUISMAR PEREIRA CHAVES","Beneficiário questiona a falta de autorização para Implante de eletrodo cerebral profundo.","IMPLANTE DE ELETRODO CEREBRAL PROFUNDO E IMPLANTE DE GERADOR PARA NEUROESTIMULAÇÃO","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-04","14115255","SUELY RODRIGUES FERREIRA NETTO","Beneficiária questiona a negativa de cobertura para angiografia digital por via venosa.","ANGIOGRAFIA DIGITAL POR VIA VENOSA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-04","14115550","NASTHYA MARILIA MORAIS BORBA","Beneficiária solicita a intervenção para que sejam mantidas as emissões das guias de terapias para TEA.","AUTORIZAÇÃO DE TERAPIA - ABA","REGRAS PARA ACESSO AOS ATENDIMENTOS","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-04","14115756","ANTONIO BRAZ SOUSA RIBEIRO","Beneficiário questiona a demora na autorização de procedimento.","IMPLANTE DE CATETER VENOSO CENTRAL POR PUNÇÃO","PRAZOS MÁXIMOS PARA ATENDIMENTO","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-04","14115768","JOAQUIM VIEIRA COSTA","Interlocutora relata cobrança indevida de coparticipação referente às terapias de seu dependente.","DESCONTO DE COPARTICIPAÇÃO","COPARTICIPAÇÃO E FRANQUIA","Não Assistencial","COARR","TRINDADE/GO","",""],
+["2026-09-05","14116475","ALESSANDRA MOURA ALVES","Beneficiária questiona a cobertura parcial do procedimento de nefrectomia, TUSS 31101585.","NEGATIVA DE BISTURI HARMÔNICO E TROCARTE DESCARTÁVEL","PRAZOS MÁXIMOS PARA ATENDIMENTO","Assistencial","COARA","BRASÍLIA/DF","",""],
+["2026-09-06","14116699","MARIA NATALICIA DO COUTO","Interlocutora relata suspensão dos atendimentos do neto.","TERAPIA COM TERAPEUTA OCUPACIONAL (duplicada)","PRAZOS MÁXIMOS PARA ATENDIMENTO","Assistencial","COGAT","ITUMBIARA/GO","",""],
+["2026-09-07","14116870","MARCO AURELIO DE CARVALHO","Beneficiário questiona cobrança no valor de R$ 206,25.","COBRANÇA INDEVIDA","MENSALIDADE OU OUTRAS COBRANÇAS","Não Assistencial","COARR","GOIÂNIA/GO","",""],
+["2026-09-07","14116944","NEUZA CAVALCANTE DE OLIVEIRA","Interlocutora relata que sua mãe de 77 anos realiza tratamento oncológico desde 2020.","BEVACIZUMABE 25MG/ML SOL DIL INFUS IV CT FA TRANSX16","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-07","14117071","LAURA ALVES LINHARES MEDEIROS","Beneficiário informa que apresentou relatório médico de neurologista.","NEGATIVA DE REEMBOLSO PARA TERAPIA COM NEUROLOGISTA","NEGATIVA DE REEMBOLSO","Assistencial","COGAT","GOIÂNIA/GO","",""],
+["2026-09-08","14117285","FELIPE XAVIER DUARTE","Responsável pelo beneficiário questiona a demora na disponibilização do resultado de biópsia.","DEMORA DO PRESTADOR NA ENTREGA DO RESULTADO DE EXAME","REDE DE ATENDIMENTO","Assistencial","COGER","LUZIÂNIA/GO","",""],
+["2026-09-08","14117338","LUANNA LUCE OLIVEIRA PASCOAL DINIZ","Beneficiária questiona a negativa na autorização para procedimento cirúrgico de mastectomia.","TERAPIAS COM TERAPEUTA OCUPACIONAL","ROL DE PROCEDIMENTO","Assistencial","COARA","LUZIÂNIA/GO","",""],
+["2026-09-08","14117364","MARLENE SOUSA CUNHA SANTOS","Beneficiária questiona a falta de transparência no Demonstrativo de Utilização.","DEMONSTRATIVO DE UTILIZAÇÃO","MENSALIDADE OU OUTRAS COBRANÇAS","Não Assistencial","COARR","GOIÂNIA/GO","",""],
+["2026-09-08","14117365","ZULEIKA ROSA DE ALMEIDA OLIVEIRA","Beneficiária diagnosticada com melanoma questiona a negativa de cobertura para ressecção do tumor.","RESSECÇÃO DE TUMOR COM PESQUISA/AVALIAÇÃO DE LINFONODO SENTINELA","REGRAS PARA ACESSO AOS ATENDIMENTOS","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-08","14117622","EVANGELISTA RESENDE DE SOUSA","Beneficiário de 76 anos portador de fibrilação atrial persistente questiona a negativa de cobertura para ablação por cateter.","ABLAÇÃO POR CATETER COM OCLUSÃO DE APÊNDICE ATRIAL ESQUERDO","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-08","14118386","TACYANE DE ANDRADE FERREIRA","Beneficiária pós-bariátrica questiona a negativa de cobertura para procedimento reparador das mamas.","RECONSTRUÇÃO MAMÁRIA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-08","14118657","AIR FERREIRA DA SILVEIRA","Beneficiária com recorrência de câncer de mama questiona a demora na autorização de cirurgia.","CIRURGIA CÂNCER DE MAMA","AUTORIZAÇÃO DE PROCEDIMENTO","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-08","14118797","SILVANA CAETANO VELOZO SILVA","Beneficiária questiona a falta de atendimento para punção lombar com manometria.","PUNÇÃO LOMBAR COM MANOMETRIA PARA COLETA DE LÍQUIDO CEFALORRAQUEANO","INSUFICIÊNCIA DE REDE","Assistencial","COGAT/COARA","GOIÂNIA/GO","",""],
+["2026-09-08","14119021","VALERIA GONCALVES DE ALMEIDA PAZ","Beneficiária questiona a demora no pagamento de reembolso já deferido.","SOLICITAÇÃO DE REEMBOLSO JÁ DEFERIDO","REEMBOLSO","Assistencial","COGAT","GOIÂNIA/GO","",""],
+["2026-09-08","14119050","MARIA DE JESUS VITAL","Beneficiária questiona a dificuldade para agendamento de consulta com endocrinologista.","CONSULTA COM ENDOCRINOLOGISTA","PRAZOS MÁXIMOS PARA ATENDIMENTO","Assistencial","CODIN/COGAT","APARECIDA DE GOIÂNIA/GO","",""],
+["2026-09-08","14119136","SELMA VITORIA FARIA DE LIMA","Beneficiária portadora de Doença de Parkinson questiona a negativa dos materiais para substituição do aparelho.","KIT NEUROESTIMULADOR RECARREGÁVEL","NEGATIVA DE COBERTURA","Assistencial","COGAT","GOIÂNIA/GO","",""],
+["2026-09-09","14119186","PATRICIA LORENA RAMOS MOTA","Beneficiária solicita reanálise do pedido de reembolso de R$ 250,00.","SOLICITAÇÃO DE REEMBOLSO REFERENTE A PROCEDIMENTO - MANOBRA DE EPLEY","NEGATIVA DE REEMBOLSO","Assistencial","COGAT","GOIÂNIA/GO","",""],
+["2026-09-09","14119481","ISABELLA SANTOS VIDAL","Mãe da beneficiária solicita consulta com neurologista pediátrico.","CONSULTA COM NEUROLOGISTA (já agendado pela CODIN)","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","GOIÂNIA/GO","",""],
+["2026-09-09","14119577","CLAUDIA SANTANA DE OLIVEIRA FREIRE","Beneficiária questiona a não autorização de materiais e insumos cirúrgicos.","CANETA ELETROCIRÚRGICA E PLACA, KIT DE ESTEREOTAXIA, NEURONAVEGAÇÃO E ASPIRADOR ULTRASSÔNICO/2 HEMOSTÁTICO AVITENE","NEGATIVA DE OPME","Assistencial","COARA","ANÁPOLIS/GO","",""],
+["2026-09-09","14119821","BARTOLOMEU REZENDE DE OLIVEIRA","Interlocutora solicita esclarecimentos e disponibilização de boletos.","SOLICITAÇÃO DE BOLETO","MENSALIDADE OU OUTRAS COBRANÇAS","Não Assistencial","COARR","GOIÂNIA/GO","",""],
+["2026-09-09","14120276","DIVINO BENEDITO SOARES","Solicitante requer autorização urgente da darolutamida.","DAROLUTAMIDA 300 MG (CÂNCER DE PRÓSTATA METASTÁTICO, TERAPIA TRIPLA COM DOCETAXEL E ELIGARD)","ROL DE PROCEDIMENTO","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-09","14120538","DIANA PAULA DE LIMA MACHADO","Beneficiário solicita a regularização e emissão dos boletos dos meses 07 e 08.","SOLICITAÇÃO DE BOLETO","MENSALIDADE OU OUTRAS COBRANÇAS","Não Assistencial","COARR","ITABERAÍ/GO","",""],
+["2026-09-10","14121627","CLEONICE NEVES DO NASCIMENTO","Beneficiária questiona a cobrança indevida de R$ 1.000,00 referente à instrumentação cirúrgica.","REEMBOLSO REFERENTE A INSTRUMENTADOR CIRÚRGICO (HISTERECTOMIA)","REEMBOLSO","Assistencial","COGAT","GOIÂNIA/GO","",""],
+["2026-09-10","14121716","CLEUSA GOMES DE FARIA","Beneficiária questiona a negativa de cobertura para cirurgia de revisão da prótese total do joelho direito.","ÓRTESE DO JOELHO","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-10","14122418","MARIA JULIA BATISTA","Responsável por beneficiária infantil com TEA questiona a negativa da guia nº 25440918.","SESSÃO DE PSICOLOGIA TEA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-10","14122489","LOHRANE APARECIDA FERREIRA","Beneficiária questiona a dificuldade de acesso a atendimento médico.","PRESTADOR PARA PARTO VAGINAL","INSUFICIÊNCIA DE REDE","Assistencial","COGAT","JATAÍ/GO","",""],
+["2026-09-10","14122523","ELISA OLIVEIRA BUENO MOREIRA","Responsável por beneficiária infantil questiona a demora para agendamento de consulta com endocrinologista pediátrico.","CONSULTA COM ENDOCRINOLOGISTA PEDIATRA","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","GOIÂNIA/GO","",""],
+["2026-09-10","14122674","MATHEUS DOS SANTOS PEREIRA","Beneficiário questiona possíveis cobranças em duplicidade de coparticipação.","COBRANÇA INDEVIDA","MENSALIDADE OU OUTRAS COBRANÇAS","Não Assistencial","COFIN","GOIÂNIA/GO","",""],
+["2026-09-10","14122858","CORNELIO FELIPE DE OLIVEIRA","Interlocutora questiona a falta de atendimento para ressonância magnética de crânio.","SOLICITAÇÃO DE RESSONÂNCIA MAGNÉTICA DE CRÂNIO","AUTORIZAÇÃO DE EXAME","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-10","14122889","LUCIA VANIA DE CARVALHO ALVES","Beneficiária com obesidade grau III questiona a negativa de cobertura para Mounjaro e CPAP.","NEGATIVA DE MOUNJARO E CPAP","NEGATIVA DE COBERTURA","Assistencial","COARA","TRINDADE/GO","",""],
+["2026-09-10","14123224","JOAO GABRIEL PANIAGO PAVAN","Responsável por beneficiário infantil questiona a dificuldade para consulta de retorno com pediatra.","RETORNO DE CONSULTA","PRAZOS MÁXIMOS PARA ATENDIMENTO","Assistencial","CODIN/COGAT","GOIÂNIA/GO","",""],
+["2026-09-10","14123242","MONIQUE MARANHAO DA COSTA","Beneficiária questiona a negativa de cobertura para troca de DIU hormonal Mirena.","NEGATIVA DE DIU HORMONAL MIRENA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-11","14123676","THAIS FRAGUAS FERREIRA E SILVA","Beneficiária questiona a dificuldade para agendamento de consulta com alergologista.","CONSULTA COM ALERGISTA","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","GOIÂNIA/GO","",""],
+["2026-09-11","14123789","EDUARDO BARBOSA DE MELO","Responsável por beneficiário infantil questiona a demora para realização de biópsia hepática.","SOLICITAÇÃO DE PRESTADOR PARA BIÓPSIA HEPÁTICA","INSUFICIÊNCIA DE REDE","Assistencial","COGAT","GOIÂNIA/GO","",""],
+["2026-09-12","14125058","EMMANUEL DE JESUS BISPO FERREIRA","Beneficiário solicita indicação de prestador para radioterapia.","SOLICITAÇÃO DE PRESTADOR PARA TC DE NARIZ E SEIOS DA FACE","INSUFICIÊNCIA DE REDE","Assistencial","COGAT/COARA","BRASÍLIA/DF","",""],
+["2026-09-12","14123789","EVANGELISTA RESENDE DE SOUSA","Beneficiário questiona a negativa de fornecimento de dispositivos para procedimento com Watchman FLX.","1 DISPOSITIVO WATCHMAN FLX; 1 SISTEMA DE FECHAMENTO WATCHMAN FLX; 1 BAINHA TORFLEX; 1 AGULHA TRANSEPTAL POR RADIOFREQUÊNCIA NGR","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-14","14125528","LIDIANY RODRIGUES PANIAGO PAVAN","Beneficiária questiona a dificuldade para agendamento de consulta presencial com endocrinologista.","CONSULTA COM ENDOCRINOLOGISTA","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","GOIÂNIA/GO","",""],
+["2026-09-14","14125793","SHIRLEY PEREIRA DUARTE NUNES","Beneficiária questiona cobranças consideradas indevidas referentes a exames realizados em 2024/2025.","COBRANÇA INDEVIDA DE COPARTICIPAÇÃO","MENSALIDADES E OUTRAS COBRANÇAS","Não Assistencial","COARR","GOIÂNIA/GO","",""],
+["2026-09-14","14125907","MARILDA LOPES PENA","Interlocutora questiona a negativa de cobertura para endoscopia com sonda tipo Bota.","NEGATIVA DE KIT ENDOSCOPIA TIPO BOTA N24 3.0CM","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-14","14126409","CAMILLA ALVES DA SILVA","Beneficiária questiona a negativa de autorização para tratamento oncológico com cemiplimabe.","CEMIPLIMABE - TERAPIA ONCOLÓGICA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-14","14126968","GABRIEL SOARES","Beneficiário com hemorragia digestiva baixa questiona a autorização parcial para arteriografia mesentérica.","ARTERIOGRAFIA MESENTÉRICA DIAGNÓSTICA COM EMBOLIZAÇÃO SUPERSELETIVA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-15","14127350","GLAUCIMAR PONTES BAHIA MODANEZ","Beneficiária questiona a negativa de cobertura para sangria terapêutica.","SANGRIA TERAPÊUTICA","NEGATIVA DE COBERTURA","Assistencial","COARA","CALDAS NOVAS/GO","",""],
+["2026-09-15","14127778","LUZALVA GOMES MARINHO MATOS","Beneficiária questiona a negativa de cobertura para Holter, ecocardiograma e MAPA.","HOLTER, ECOCARDIOGRAMA E MAPA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-15","14128100","CECILIA VIEIRA NOGUEIRA","Responsável por beneficiária infantil questiona a ausência de autorização para terapia ocupacional.","TERAPIA OCUPACIONAL","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-15","14128414","CARLOS ALEXANDRE FARIA OLIVEIRA","Beneficiária questiona a negativa de reembolso referente à extração de três sisos.","EXODONTIA TERCEIROS MOLARES","REEMBOLSO","Assistencial","COGAT","JATAÍ/GO","",""],
+["2026-09-15","14128979","WISLAINY SOUZA MONTEIRO DOS SANTOS","Responsável pelo beneficiário de 4 meses questiona a ausência de prestador para consulta com pediatra especialista em osteopatia infantil.","CONSULTA COM OSTEOPATA PEDIÁTRICA","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","GOIÂNIA/GO","",""],
+["2026-09-16","14129237","JOAO VITOR CARNEIRO DA SILVA","Interlocutora questiona a falta de atendimento para Endocrinologia.","CONSULTA COM ENDOCRINOLOGISTA","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","GOIÂNIA/GO","",""],
+["2026-09-16","14129529","WALDIR JUNIOR ALVES DO NASCIMENTO","Beneficiário questiona a negativa de autorização para cirurgia no ombro esquerdo.","CIRURGIA NO OMBRO ESQUERDO","NEGATIVA DE COBERTURA","Assistencial","COARA","URUAÇU/GO","",""],
+["2026-09-16","14129602","BENICIO LEMES DANTAS","Responsável por beneficiário de 1 ano e 8 meses diagnosticado com TEA questiona a ausência de autorização para Fonoaudiologia ABA e Terapia Ocupacional ABA.","TERAPIA OCUPACIONAL","INSUFICIÊNCIA DE REDE","Assistencial","COARA/COGAT","RIO VERDE/GO","",""],
+["2026-09-16","14130181","DIOGO ANTONIO VIEIRA CORREA","Beneficiário questiona a dificuldade para agendamento de consulta com psiquiatra.","CONSULTA COM PSIQUIATRA","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","GOIÂNIA/GO","",""],
+["2026-09-17","14130563","SEBASTIANA AUGUSTA MOREIRA","Beneficiária de 76 anos questiona a negativa de cobertura para ressonância magnética de crânio.","RESSONÂNCIA DE CRÂNIO","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-17","14130853","LUCIA HELENA SOYER DE ALENCAR ARRAIS","Beneficiária questiona a negativa de cobertura dos materiais para cirurgia de aneurisma.","CATETER BALÃO DE OCLUSÃO - ANEURISMA CEREBRAL","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-17","14130996","BRENNO BARSANULFO COSTA","Responsável por beneficiário diagnosticado com TEA questiona a exigência de novo encaminhamento médico.","TERAPIA TEA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-17","14131097","JULYANA SOARES PUREZA","Responsável por beneficiária recém-nascida questiona a dificuldade para o teste do pezinho.","TESTE DO PEZINHO AMPLIADO","INSUFICIÊNCIA DE REDE","Assistencial","COGAT/COARA","GOIÂNIA/GO","",""],
+["2026-09-17","14131185","CLERIA RIBEIRO SILVA","Beneficiária questiona a impossibilidade de cadastramento de materiais para prótese reversa de ombro.","CADASTRAMENTO DE CÓDIGO","SOLICITAÇÃO DE OPME","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-17","14131529","LUCIA HELENA NASCIMENTO SILVA","Beneficiário questiona a dificuldade para agendamento de consulta com psiquiatra.","RECLAMAÇÃO CONDUTA DE PRESTADOR","HOMECARE","Assistencial","COATE","GOIÂNIA/GO","",""],
+["2026-09-18","14131910","FLOREUNICE ABRAO","Beneficiário questiona a dificuldade de acesso a Dermatologia.","CONSULTA COM DERMATOLOGISTA","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","CATALÃO/GO","",""],
+["2026-09-18","14132676","MATTEO SOARES ZANELATTO","Responsável pelo beneficiário questiona a negativa de continuidade das terapias.","NEGATIVA PARA TERAPIA COM NEUROPEDIATRA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-18","14133014","MOISES CRUVINEL PANIAGO RODRIGUES","Responsável pelo beneficiário questiona a negativa de autorização para avaliação neuropsicológica.","AVALIAÇÃO NEUROPSICOLÓGICA","NEGATIVA DE COBERTURA","Assistencial","COARA","RIO VERDE/GO","",""],
+["2026-09-18","14133194","GREICE GRAZIELLE DE ARAUJO PIMENTEL","Beneficiária questiona a dificuldade de agendamento com cirurgião cardíaco.","REEMBOLSO CONSULTA COM CARDIOLOGISTA","REEMBOLSO","Assistencial","COGAT","GOIÂNIA/GO","",""],
+["2026-09-18","14133204","RAISSA DA SILVA FERNANDES","Beneficiária questiona a negativa de cobertura do medicamento Alectinibe (Alecensa).","ALECTINIBE (ALECENSA)","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-20","14133810","ROSIMEIRE GONCALVES","Beneficiário questiona a negativa de cobertura para realização de tratamento.","ÁCIDO ZOLEDRÔNICO 5MG","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-21","14133947","RAUL ALVES CORREA DE ANDRADE","Beneficiário questiona a negativa de autorização para consulta médica devido a carência.","CONSULTAS NEGADAS DEVIDO A CARÊNCIA","CARÊNCIA","Assistencial","CONEG","GOIÂNIA/GO","",""],
+["2026-09-21","14134125","LAURA VITORIA LINO REIS","Responsável pela beneficiária questiona a dificuldade para acesso a atendimento psicológico.","PSICOTERAPIA","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","BRASÍLIA/DF","",""],
+["2026-09-21","14134155","LUANNA CHRISTINA RODRIGUES LINO","Responsável pela beneficiária questiona a dificuldade para consulta presencial com dermatologista.","CONSULTA COM DERMATOLOGISTA","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","BRASÍLIA/DF","",""],
+["2026-09-21","14134249","HANDER ABADIA DE SOUSA","Beneficiário questiona a negativa de cobertura para cirurgia urológica por videolaparoscopia.","CIRURGIA DE ADRENALECTOMIA UNILATERAL POR VÍDEO","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-21","14134772","BYANKA BUENO SOARES","Interlocutor(a) questiona a falta de atendimento para procedimentos de mastectomia e reconstrução mamária.","CIRURGIA DE MASTECTOMIA - ENXERTO - RECONSTRUÇÃO MAMÁRIA (GUIA EM ANÁLISE)","PRAZOS MÁXIMOS PARA ATENDIMENTO","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-21","14134773","ALINE COSTA","Responsável por beneficiário com TEA questiona a não autorização das guias para Psicologia, Fonoaudiologia e Terapia Ocupacional.","TERAPIA OCUPACIONAL (GUIA EM ANÁLISE)","PRAZOS MÁXIMOS PARA ATENDIMENTO","Assistencial","COGAT/COARA","GOIÂNIA/GO","",""],
+["2026-09-21","14135600","BENEDITO DJALMO MARQUES ROLIM","Responsável por beneficiário solicita rede de atendimento em odontologia em Valparaíso de Goiás.","SEDAÇÃO IV MONITORIZADA PARA PROCEDIMENTO ODONTOLÓGICO","INSUFICIÊNCIA DE REDE","Assistencial","COGAT/COARA","VALPARAÍSO/GO","",""],
+["2026-09-22","14135819","MARIA NATALICIA DO COUTO","Interlocutora questiona a falta de atendimento para terapias multidisciplinares.","TERAPIA OCUPACIONAL","INSUFICIÊNCIA DE REDE","Assistencial","","ITUMBIARA/GO","",""],
+["2026-09-22","14136062","HANDER ABADIA DE SOUSA","Beneficiário questiona a não cobertura para Adrenalectomia Unilateral por Vídeo.","CIRURGIA DE ADRENALECTOMIA UNILATERAL POR VÍDEO","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-22","14136086","RICARDO AUGUSTO PEIXOTO","Beneficiário questiona cobrança de mensalidade em valor superior ao informado.","VALOR MAIOR NA INCLUSÃO DO DEPENDENTE","MENSALIDADE OU OUTRAS COBRANÇAS","Não Assistencial","CONEG","APARECIDA DE GOIÂNIA/GO","",""],
+["2026-09-22","14137237","ERICK MARTINS DOS SANTOS","Interlocutora questiona a falta de atendimento para Terapia com Psicólogo.","TERAPIA COM PSICÓLOGO","SOLICITAÇÃO DE TERAPIAS","Assistencial","COARA/COGAT","ANICUNS/GO","",""],
+["2026-09-22","14137745","ELIENE PEREIRA XAVIER","Interlocutora questiona a insuficiência de rede para agendamento com neuropediatra.","CONSULTA COM NEUROPEDIATRA","INSUFICIÊNCIA DE REDE","Assistencial","CODIN","GOIÂNIA/GO","",""],
+["2026-09-22","14137747","ISABELLA CUSTODIO FERREIRA DIAS","Interlocutora questiona indisponibilidade para consulta com Neurologista pediatra.","CONSULTA COM NEUROPEDIATRA","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","GOIÁS/GO","",""],
+["2026-09-22","14137852","SUELLEN KARLLA SOARES BARBOSA","Beneficiária questiona a negativa de medicamento para tratamento de câncer da mama.","MEDICAMENTO ONCOLÓGICO","CARÊNCIA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-23","14138071","ANA PAULA LINO DA SILVA","Beneficiária questiona a negativa de cobertura para cirurgia de artroscopia.","NEGATIVA DE CIRURGIA DE ARTROSCOPIA DA ATM","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-23","14138146","DANIEL PIRES ALEIXO FILHO","Mãe do beneficiário questiona a ausência de atendimento para cirurgia de ginecomastia.","NEGATIVA DE CIRURGIA DE GINECOMASTIA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-23","14139374","JULIA MESQUITA DOS SANTOS","Mãe da beneficiária questiona a ausência de agendamento para consulta com endocrinologista.","CONSULTA COM ENDOCRINOLOGISTA PEDIATRA","INSUFICIÊNCIA DE REDE","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-23","14139546","ANNE CAROLINE SANTANA LEAO","Beneficiária questiona a indisponibilidade de agendamento para endoscopia e colonoscopia.","EXAMES DE ENDOSCOPIA ALTA DIGESTIVA E COLONOSCOPIA","INSUFICIÊNCIA DE REDE","Assistencial","COGAT","ANÁPOLIS/GO","",""],
+["2026-09-23","14140165","ANNE CAROLINE SANTANA LEAO","Beneficiária questiona a negativa de cobertura para exames de investigação intestinal.","CALPROTECTINA FECAL; ELASTASE PANCREÁTICA FECAL; PESQUISA DE CLOSTRIDIUM DIFFICILE NAS FEZES; ANTI GLIADINA DEAMINADA IGA; AC. ANTI FATOR INTRÍNSECO","NEGATIVA DE COBERTURA","Assistencial","COARA","ANÁPOLIS/GO","",""],
+["2026-09-24","14140684","EDILELZA DA SILVA NOBREGA PEREIRA","Beneficiário questiona a negativa de cobertura para cirurgia de próstata.","CIRURGIA DE PRÓSTATA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-24","14140768","NILDA INACIO DE FARIA","Interlocutora questiona a demora para autorização dos procedimentos de artrodese e laminectomia.","CIRURGIA DE ARTRODESE E LAMINECTOMIA","PRAZOS MÁXIMOS DE AUTORIZAÇÃO","Assistencial","COARA","ANÁPOLIS/GO","",""],
+["2026-09-24","14140807","RENATA DE SOUZA ALVES PAULA CAVALCANTE","Beneficiária em tratamento de câncer de mama questiona a demora na autorização para mastectomia bilateral.","CIRURGIA MASTECTOMIA RADICAL OU RADICAL MODIFICADA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-24","14140879","JEFERSON LUCIO MOREIRA DA ROSA","Beneficiária questiona a dificuldade para agendamento de consulta com endocrinologista.","SOLICITAÇÃO DE CONSULTA","PRAZOS MÁXIMOS PARA ATENDIMENTO","Assistencial","CODIN","GOIÂNIA/GO","",""],
+["2026-09-24","14140988","INEZ MARTINS DA COSTA","Beneficiário questiona a falta de atendimento para consulta com psiquiatra.","CONSULTA COM PSIQUIATRA","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","ITABERAÍ/GO","",""],
+["2026-09-24","14141593","LAYLA PESSONI PEREIRA","Beneficiária questiona a negativa de cobertura para ultrassom transvaginal.","NEGATIVA DE US TRANSVAGINAL","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-24","14141594","FERNANDA CAMPOS DE ALCANTARA","Beneficiária questiona a negativa de cobertura para endoscopia digestiva alta com biópsia.","ENDOSCOPIA DIGESTIVA ALTA COM BIOPSIA E OU CITOLOGIA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-24","14141753","BERNARDO DOS SANTOS ABREU DE SA","Responsável pelo beneficiário questiona a negativa de autorização para sessões de terapia.","NEGATIVA PARA TERAPIA TEA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-24","14142150","NATHANY MANUELA RODRIGUES DA SILVA","Interlocutor questiona a negativa de cobertura para terapia com psicopedagoga.","NEGATIVA DE TERAPIA EM PSICOPEDAGOGIA","NEGATIVA DE COBERTURA","Assistencial","COARA","ANICUNS/GO","",""],
+["2026-09-24","14142202","MARILIA DE OLIVEIRA CAMPOS","Beneficiária questiona o direcionamento do atendimento com oftalmologista.","CONSULTA COM OFTALMOLOGISTA ESPECÍFICO","REDE DE ATENDIMENTO","Assistencial","CODIN","GOIÂNIA/GO","",""],
+["2026-09-25","14143281","MARILDA LOPES PENA","Interlocutora questiona a negativa de cobertura para home care.","NEGATIVA HOMECARE","NEGATIVA DE COBERTURA","Assistencial","COATE","GOIÂNIA/GO","",""],
+["2026-09-25","14143788","DARLY LUIZ GONCALVES","Interlocutor questiona a negativa de cobertura para rizotomia percutânea por segmento.","NEGATIVA - RIZOTOMIA PERCUTÂNEA POR SEGMENTO","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-25","14143987","ITAMAR CARVALHO JUNIOR","Interlocutor questiona a negativa de cobertura para angiografia cerebral.","NEGATIVA - EXAME ANGIOGRAFIA CEREBRAL","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-25","14144226","DEBORA ALMEIDA COELHO","Interlocutora questiona a negativa de cobertura para patch test.","NEGATIVA - EXAME PATCH TEST (TESTE DE CONTATO)","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-27","14145140","ADRIANA DOS SANTOS PINHEIRO","Beneficiária questiona que está isenta de coparticipação devido a tratamento oncológico e foi cobrada uma coparticipação.","COBRANÇA INDEVIDA DE COPARTICIPAÇÃO","COPARTICIPAÇÃO","Não Assistencial","COARR/COPES","GOIÂNIA/GO","",""],
+["2026-09-28","14145252","DEBORA ALMEIDA COELHO","Beneficiário de 75 anos cardiopata grave questiona os cancelamentos consecutivos de consulta com Cirurgia Vascular.","CONSULTA COM CIRURGIÃO VASCULAR","PRAZOS MÁXIMOS PARA ATENDIMENTO","Assistencial","CODIN/COGAT","GOIÂNIA/GO","",""],
+["2026-09-28","14145561","JOAO OLIVEIRA LINO","Interlocutora questiona a falta de atendimento para sessões de fonoaudiologia.","TERAPIA COM FONOAUDIÓLOGA","REGRAS PARA ACESSO AOS ATENDIMENTOS","Assistencial","COGAT","ITABERAÍ/GO","",""],
+["2026-09-28","14145808","MIGUEL ASSIS GOUVEIA SILVA","Interlocutora questiona a falta de atendimento para terapias com psicóloga.","TERAPIA COM PSICÓLOGA","REGRAS PARA ACESSO AOS ATENDIMENTOS","Assistencial","CODIN/COGAT","JATAÍ/GO","",""],
+["2026-09-28","14145811","LUZIA GRAZIELLE RIBEIRO DA SILVA","Responsável pelo beneficiário com TEA questiona a demora na autorização para limpeza e raspagem odontológica.","DEMORA PARA LIBERAÇÃO DE LIMPEZA E RASPAGEM DENTAL","ROL DE PROCEDIMENTOS E COBERTURA CONTRATUAL","Assistencial","COARA","BRASÍLIA/DF","",""],
+["2026-09-28","14145968","GUSTAVO TAVARES MAGALHAES","Interlocutor questiona a demora para consulta de retorno com endocrinologista.","CONSULTA COM ENDOCRINOLOGISTA PEDIATRA","PRAZOS MÁXIMOS PARA ATENDIMENTO","Assistencial","CODIN/COGAT","SENADOR CANEDO/GO","",""],
+["2026-09-28","14146390","ANDREIA SOUSA DA SILVA","Beneficiária questiona a negativa de cobertura para blefaroplastia.","CIRURGIA DE BLEFAROPLASTIA","NEGATIVA DE COBERTURA","Assistencial","COARA","APARECIDA DE GOIÂNIA/GO","",""],
+["2026-09-28","14146571","GISLAYNE ARANTES CALACO ROMANO","Beneficiário questiona a negativa de cobertura para dissecção muscular.","CONSULTA COM ENDOCRINOLOGISTA PEDIATRA","INSUFICIÊNCIA DE REDE","Assistencial","COGAT/COGAT","ANÁPOLIS/GO","",""],
+["2026-09-28","14147704","ANA PAULA LACERDA SILVA","Beneficiária questiona a demora para agendamento de consulta de retorno.","CONSULTA COM ENDOCRINOLOGISTA PEDIATRA","SOLICITAÇÃO DE CONSULTA","Assistencial","CODIN/COGAT","GOIÂNIA/GO","",""],
+["2026-09-29","14147704","ANA PAULA LACERDA SILVA","Beneficiária questiona a demora para agendamento de consulta de retorno.","CONSULTA COM ENDOCRINOLOGISTA","REDE DE ATENDIMENTO","Assistencial","CODIN/COGAT","GOIÂNIA/GO","",""],
+["2026-09-29","14147755","MARIO JUNIO SOUSA ROCHA SILVA","Interlocutora questiona a falta de cobertura para escitalopram e cloridrato de nortriptilina.","MEDICAMENTOS ESCITALOPRAM E CLORIDRATO DE NORTRIPTILINA","SOLICITAÇÃO DE MEDICAMENTO","Assistencial","COARA","ITUMBIARA/GO","",""],
+["2026-09-29","14148208","MARIA LUISA MARTINS BARBOSA","Beneficiária questiona a negativa de autorização das guias para terapias multidisciplinares para autismo.","NEGATIVA DE TERAPIAS MULTIDISCIPLINARES","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-29","14148335","HELEN CRISTINA ALVES REZENDE DINIZ","Beneficiária com síndrome nefrótica questiona a autorização para tratamento com rituximabe.","NEGATIVA DE COBERTURA PARA O MEDICAMENTO RITUXIMABE","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-29","14148389","LUCCA ASAFE NOGUEIRA BARROS","Interlocutora questiona a falta de atendimento para consulta com gastroenterologista pediátrico.","CONSULTA COM GASTROPEDIATRA","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","GOIÂNIA/GO","",""],
+["2026-09-29","14148512","ELIZABETH MIRANDA","Beneficiária questiona a demora na autorização para cirurgia de retirada de massa pélvica de 8 cm.","TUMORES RETROPERITONEAIS MALIGNOS UNILATERAIS - EXÉRESE LINFADENECTOMIA RETROPERITONEAL","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-09-29","14148788","SONIA MARIA LEAO LIMA SANTOS","Beneficiário questiona a falta de atendimento para consulta com endocrinologista.","CONSULTA COM ENDOCRINOLOGISTA","REDE DE ATENDIMENTO","Assistencial","CODIN/COGAT","ITAPACI/GO","",""],
+["2026-09-29","14149567","MARIA AMELIA OLIVEIRA ANDRADE","Beneficiária portadora de TEA questiona o valor da coparticipação das terapias.","VALOR DE COPARTICIPAÇÃO FIXA NÃO CUMPRIDA","COBRANÇA DE COPARTICIPAÇÃO INDEVIDA","Não Assistencial","COARR","CAIAPÔNIA/GO","",""],
+["2026-09-29","14149578","SEILA LIMA E SILVA","Beneficiário questiona a cobrança de coparticipação das terapias ABA.","VALOR DE COPARTICIPAÇÃO NÃO ENVIADO PARA A BENEFICIÁRIA","COBRANÇA NÃO ENVIADA","Não Assistencial","COARR","JATAÍ/GO","",""],
+["2026-09-29","14150477","EMMANUEL DE JESUS BISPO FERREIRA","Beneficiário questiona a dificuldade para consulta com cirurgião plástico para reconstrução de mama.","MEDICAMENTO ACETATO DE ABIRATERONA 250MG","INSUFICIÊNCIA DE REDE","Assistencial","COGAT/COARA","BRASÍLIA/DF","",""],
+["2026-09-29","14150484","EMMANUEL DE JESUS BISPO FERREIRA","Beneficiário questiona a dificuldade para consulta com psiquiatra com RQE em autismo.","CONSULTA COM PSIQUIATRA","INSUFICIÊNCIA DE REDE","Assistencial","COGAT","BRASÍLIA/DF","",""],
+["2026-09-30","14150636","DIVINO CESAR DE OLIVEIRA","Interlocutora questiona a negativa de cobertura para acetato de abiraterona 250 mg.","NEGATIVA DE MEDICAMENTO ACETATO DE ABIRATERONA 250MG","SOLICITAÇÃO DE MEDICAMENTO","Assistencial","COARA","HIDROLÂNDIA/GO","",""],
+["2026-09-30","14150657","JOSE LUIZ ADAO DE REZENDE","Interlocutora questiona a demora para autorização de cirurgia oncológica.","ANÁLISE DE SOLICITAÇÃO DE CIRURGIA PARA RESSECÇÃO DE TUMOR DE GLÂNDULA SUBMANDIBULAR","SOLICITAÇÃO DE CIRURGIA","Assistencial","COARA","IPIRANGA DE GOIÁS/GO","",""],
+["2026-09-30","14150747","AMANDA CAROLINE DA SILVA PEREIRA PONTES","Beneficiária questiona a demora na autorização para infusão de imunoglobulina.","ANÁLISE DE COBERTURA PARA INFUSÃO HIZENTRA","SOLICITAÇÃO DE PROCEDIMENTO","Assistencial","COARA","CATALÃO/GO","",""],
+["2026-09-30","14151849","BENICIO OLIVEIRA FREITAS FRANCO","Responsável pelo beneficiário menor de idade questiona a falta de atendimento com neurocirurgião.","CONSULTA COM PROFISSIONAL NEUROCIRURGIÃO","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","JATAÍ/GO","",""],
+["2026-09-30","14151942","NATHALIA FERNANDES DA SILVA OLIVEIRA","Beneficiária questiona a dificuldade para mamotomia guiada por ressonância magnética.","INDICAÇÃO DE PRESTADORES APTOS PARA A REALIZAÇÃO DE RM","INSUFICIÊNCIA DE REDE","Assistencial","COGAT","GOIÂNIA/GO","",""],
+["2026-09-30","14151948","MARIA DAS DORES ALVES CHAVEIRO BATISTA","Beneficiária questiona a negativa de cobertura para ressonância magnética de abdome superior.","NEGATIVA DE RM COM CONTRASTE","NEGATIVA DE COBERTURA","Assistencial","COARA","ANÁPOLIS/GO","",""],
+["2026-09-30","14152492","INGRIDY LINHARES SILVA","Beneficiária questiona a dificuldade para consulta com psiquiatra.","CONSULTA COM PSIQUIATRA","SOLICITAÇÃO DE CONSULTA","Assistencial","CODIN/COGAT","GOIÂNIA/GO","",""],
+["2026-09-30","14152713","ESTER MARIA DE JESUS","Interlocutor questiona a falta de atendimento para Ciclofosfamida 750ml.","FALTA DE PRESTADORES APTOS À REALIZAÇÃO DA APLICAÇÃO DO MEDICAMENTO CICLOFOSFAMIDA 750ML","REDE DE ATENDIMENTO","Assistencial","COARA/COGAT","GOIÂNIA/GO","",""],
+["2026-10-01","14153210","LARISSA GOMES DE AQUINO","Beneficiária questiona a negativa de cobertura para DIU hormonal Mirena 52 mg.","DIU HORMONAL MIRENA 52MG","NEGATIVA DE COBERTURA","Assistencial","COARA","RIO VERDE/GO","",""],
+["2026-10-01","14153322","ANDREA LIMA DUARTE","Beneficiária questiona a dificuldade para consulta com endocrinologista.","CONSULTA COM ENDOCRINOLOGISTA","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","GOIÂNIA/GO","",""],
+["2026-10-01","14154859","KEROLLY DE OLIVEIRA PEREIRA CHAVES","Beneficiária questiona o encerramento de sua condição de dependente e impossibilidade de portabilidade.","SOLICITAÇÃO DE PORTABILIDADE PÓS-CANCELAMENTO","CARTA DE PORTABILIDADE","Assistencial","CONEG","GOIÂNIA/GO","",""],
+["2026-10-02","14153322","ADRIANA OLIMPIO DA SILVA","Beneficiária com adenocarcinoma gástrico questiona a negativa de cobertura para durvalumabe.","QUIMIOTERAPIA PERIOPERATÓRIA FLOT COM DURVALUMABE (IMFINZI) 1.500MG IV","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-10-02","14156205","VALERIA GONCALVES DE ALMEIDA PAZ","Beneficiária questiona a demora no pagamento de reembolso já deferido.","PRAZO MÁXIMO PARA REEMBOLSO EXTRAPOLADO","SOLICITAÇÃO DE REEMBOLSO","Assistencial","COGAT","GOIÂNIA/GO","",""],
+["2026-10-02","14156647","EMMANUEL DE JESUS BISPO FERREIRA","Beneficiário questiona a dificuldade para consulta com dermatologista especializado em cicatrizes.","CONSULTA COM DERMATOLOGISTA ESPECIALISTA EM CICATRIZES HIPERTRÓFICAS E ATRÓFICAS","INSUFICIÊNCIA DE REDE","Assistencial","COGAT","BRASÍLIA/DF","",""],
+["2026-10-02","14157239","CLAUDIA ROSA ALEXANDRE","Beneficiária questiona a falta de atendimento para consulta presencial com endocrinologista.","CONSULTA COM ENDOCRINOLOGISTA","INSUFICIÊNCIA DE REDE","Assistencial","COGAT","ITUMBIARA/GO","",""],
+["2026-10-03","14157795","EREMITA TELES DE SOUZA","Interlocutora questiona a negativa de cobertura para denosumabe 60 mg.","NEGATIVA DO MEDICAMENTO DENOSUMABE 60 MG","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-10-04","14157910","THABIO DE ALMEIDA SILVA","Beneficiário questiona a demora para agendamento de colonoscopia com biópsia.","COLONOSCOPIA COM BIÓPSIA E/OU CITOLOGIA","INSUFICIÊNCIA DE REDE","Assistencial","COGAT","JATAÍ/GO","",""],
+["2026-10-04","14157914","THABIO DE ALMEIDA SILVA","Beneficiário questiona a dificuldade para realização de avaliação neuropsicológica.","SOLICITAÇÃO DE REDE CREDENCIADA PARA AVALIAÇÃO NEUROPSICOLÓGICA","INSUFICIÊNCIA DE REDE","Assistencial","COARA","JATAÍ/GO","",""],
+["2026-10-04","14157976","LUCIANO ANDRADE MACHADO","Beneficiário questiona a demora para agendamento de colonoscopia com biópsia.","URETERORRENOLITOTRIPSIA FLEXÍVEL A LASER ACOMPANHADA DA COLOCAÇÃO CITOSCÓPICA DE DUPLO J E RESPECTIVO KIT CIRÚRGICO","TEMPO MÁXIMO DE AUTORIZAÇÃO","Assistencial","COARA","ANÁPOLIS/GO","",""],
+["2026-10-05","14158222","FRANCIS ALVES PEREIRA","Beneficiário questiona a falta de atendimento para raio X.","AUTORIZAÇÃO DE RAIO X","TEMPO MÁXIMO DE AUTORIZAÇÃO","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-10-05","14158316","LUCIANO ANDRADE MACHADO","Interlocutora questiona a falta de atendimento para home care e suplementos.","NEGATIVA DE HOME CARE E SUPLEMENTOS","NEGATIVA DE COBERTURA","Assistencial","COATE","GOIÂNIA/GO","",""],
+["2026-10-05","14159093","ALICE CARVALHO DE SOUZA","Interlocutora questiona a negativa de cobertura para sutura, curativo e tomografia de crânio.","NEGATIVA DE SUTURA, CURATIVO E TOMOGRAFIA DO CRÂNIO","NEGATIVA DE COBERTURA","Assistencial","COARA","LUZIÂNIA/GO","",""],
+["2026-10-05","14160349","CARMELIA DA PENHA","Interlocutor(a) questiona a não cobertura para coroa metálica com pino.","NEGATIVA ODONTOLÓGICA DE COROA METÁLICA COM PINO","NEGATIVA DE COBERTURA","Assistencial","COATE","GOIÂNIA/GO","",""],
+["2026-10-05","14160659","LECIA MOREIRA LOPES","Interlocutora questiona a recusa de reembolso integral para tratamento multidisciplinar em TEA.","NEGATIVA DE REEMBOLSO","SOLICITAÇÃO DE REEMBOLSO","Assistencial","COGAT","IACIARA/GO","",""],
+["2026-10-06","14160987","JOAO MIGUEL ASSIS MOREIRA","Interlocutora questiona a falta de atendimento para consulta em dermatopediatria.","CONSULTA COM DERMATOLOGISTA PEDIATRA","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","ANÁPOLIS/GO","",""],
+["2026-10-06","14161805","HILDETE MARTINS DE ASSUNCAO TORRES","Interlocutora questiona a recusa de reembolso integral para tratamento multidisciplinar em TEA.","IBRANCE 125MG","TEMPO MÁXIMO DE AUTORIZAÇÃO","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-10-06","14161881","THAIS MARIELLY DE SOUZA PIRES","Responsável legal pelo beneficiário questiona a negativa de autorização para exames.","RESSONÂNCIA MAGNÉTICA","NEGATIVA DE COBERTURA","Assistencial","CODIN/COGAT","GOIÂNIA/GO","",""],
+["2026-10-06","14162000","NARIMEIA FRANCISCO PIRES","Beneficiária questiona a falta de atendimento para ativação de prótese auditiva BAHA.","PRESTADOR APTO PARA A REALIZAÇÃO DE PRÓTESE AUDITIVA","INSUFICIÊNCIA DE REDE","Assistencial","COGAT","GOIÂNIA/GO","",""],
+["2026-10-06","14162324","MIGUEL FERREIRA MELO","Interlocutora questiona a demora para realização de cirurgia de cateterismo cardíaco.","CATETERISMO CARDÍACO","TEMPO MÁXIMO DE ATENDIMENTO","Assistencial","COGAT","GOIÂNIA/GO","",""],
+["2026-10-06","14162789","MARIO LUCIO MEIRELES DOS SANTOS","Interlocutora questiona a negativa de cobertura para materiais de angiografia digital arterial.","ANGIOGRAFIA DIGITAL","NEGATIVA DE COBERTURA","Assistencial","COARA","LUZIÂNIA/GO","",""],
+["2026-10-06","14162804","RAFAEL CRISTIANO RIBEIRO SERRADOURADA","Interlocutora questiona a demora para realização de cirurgia de cateterismo cardíaco.","SESSÕES DE FONOAUDIOLOGIA","INSUFICIÊNCIA DE REDE","Assistencial","COGAT","TRINDADE/GO","",""],
+["2026-10-06","14163114","MATEUS ARAUJO BEZERRA GAMPER","Beneficiário questiona a dificuldade para autorização de cirurgia para fratura do escafoide.","PSEUDOARTROSE DOS OSSOS DA MÃO","TEMPO MÁXIMO DE AUTORIZAÇÃO","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-10-07","14163785","FLAUBER LUCAS RESPLANDES DE OLIVEIRA","Beneficiário questiona a manutenção de mensalidade referente a 06/2026 como pendente, apesar de ter efetuado o pagamento após a regularização de problema sistêmico que impediu a emissão do boleto no prazo. Relata que recebeu, em 06/10/2026, notificação de inadimplência no valor de R$ 254,29 referente à mesma mensalidade já quitada.","COBRANÇA JÁ PAGA","COBRANÇA INDEVIDA","Não assistencial","COARR","GOIÂNIA/GO","",""],
+["2026-10-07","14163926","YAN NOGUEIRA DE MIRANDA","Interlocutor, que se identifica como pai do beneficiário, questiona a negativa de cobertura para realização de tomografia de abdome sem contraste, solicitada em 07/10/2026.","NEGATIVA DE TOMOGRAFIA DO ABDOME SEM CONTRASTE","NEGATIVA DE COBERTURA","Assistencial","COARA","FORMOSA/GO","",""],
+["2026-10-07","14163929","ALEX NOGUEIRA DE SOUZA","Interlocutor, que se identifica como filho do beneficiário, questiona a cobrança realizada por prestador referente à cirurgia de desvio de septo nasal e turbinectomia, realizada em 28/08/2026.","COBRANÇA DE HONORÁRIO PARA CIRURGIA","CONDUTA DO PRESTADOR","Assistencial","COGAT","SANTO ANTÔNIO DE GOIÁS/GO","",""],
+["2026-10-07","14164769","DAYANE MAIA DOS SANTOS","Beneficiária, mãe de recém-nascida, questiona a dificuldade para agendamento de consulta pediátrica para a filha.","CONSULTA COM PEDIATRA","TEMPO MÁXIMO DE ATENDIMENTO","Assistencial","CODIN/COGAT","GOIÂNIA/GO","",""],
+["2026-10-07","14165740","SIMONE MARIA DA SILVA","Beneficiária questiona a cobrança de duas folhas em seu contracheque, nos valores R$ 453,45 e R$ 3.038,10.","COBRANÇA LANÇADA EM FOLHA DE FORMA INDEVIDA","COBRANÇA INDEVIDA","Não assistencial","COARR","SÃO LUÍS DE MONTES BELOS/GO","",""],
+["2026-10-08","14166377","MATEUS ARAUJO BEZERRA GAMPER","Beneficiário questiona a demora para autorização de material cirúrgico para pseudoartrose do escafoide.","SOLICITAÇÃO DE PARAFUSO DE HERBERT","TEMPO MÁXIMO DE AUTORIZAÇÃO","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-10-08","14166384","BRUNA ALVES ROMERO","Beneficiária questiona a dificuldade para cancelamento do plano após encerramento de seu contrato.","SOLICITAÇÃO DE CANCELAMENTO DO BENEFICIÁRIO","SUSPENSÃO E RESCISÃO CONTRATUAIS","Não Assistencial","CONEG","GOIÂNIA/GO","",""],
+["2026-10-08","14166580","HEITOR RODRIGUES DOS SANTOS","Interlocutora questiona a cobrança de mensalidades em valores superiores aos previstos contratualmente.","COBRANÇA ACUMULATIVA","MENSALIDADE OU OUTRAS COBRANÇAS","Não Assistencial","COARR","GOIÂNIA/GO","",""],
+["2026-10-08","14166794","JESSICA ROCHA CHAVES","Interlocutora questiona a cobrança de mensalidade em duplicidade.","COBRANÇA EM DUPLICIDADE","MENSALIDADE OU OUTRAS COBRANÇAS","Não Assistencial","COARR","GOIÂNIA/GO","",""],
+["2026-10-08","14166925","LUCIA MARIA MOREIRA E DUTRA","Interlocutora questiona a negativa de cobertura para materiais e medicamentos para vitrectomia.","SOLICITAÇÃO VITRECTOMIA VIAS PARS PLANA, INFUSÃO DE PERFLUOROCARBONO, MEMBRANECTOMIA, FACECTOMIA COM LENTE INTRAOCULAR COM OU SEM FACOEMULSIFICAÇÃO, TROCA FLUIDO-GASOSA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIANÁPOLIS/GO","",""],
+["2026-10-08","14167256","SUELY RODRIGUES FERREIRA NETTO","Beneficiária de 74 anos questiona a negativa de cobertura para ecodopplercardiograma transtorácico.","NEGATIVA ECODOPPLERCARDIOGRAMA TRANSTORÁCICO","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","",""],
+["2026-10-08","14167476","RUBYA CARLA VIEIRA MARTINEZ","Beneficiário questiona a demora para realização de cirurgia de catarata do olho direito.","AUTORIZAÇÃO PARA CIRURGIA DE CATARATA","TEMPO MÁXIMO DE AUTORIZAÇÃO","Assistencial","COARA","GOIÂNIA/GO","",""],
+
+/* === NOVOS REGISTROS — PLANILHA 09/10/2026 a 20/10/2026 === */
+["2026-10-09","14169239","JANAINE DE SOUSA ABEL","Beneficiária questiona a demora para autorização de biópsia guiada por mamografia, solicitada em 07/10/2026 pela Dra. Mabile Milhomen de Faria, CRM-GO 25381, diante de suspeita de malignidade. Informa que a operadora alegou que o pedido está em auditoria, com prazo de resposta de 10 dias úteis, mas que conseguiu encaixe para realização do procedimento em 13/10/2026, após solicitação de urgência em razão do resultado da mamografia, para realização no município de Itaberaí/GO.","BIÓPSIA GUIADA POR MAMOGRAFIA","TEMPO MÁXIMO DE AUTORIZAÇÃO","Assistencial","COARA","ITABERAÍ/GO","","Ipasgo Saúde Básico"],
+["2026-10-09","14168676","FABIO ALENCAR DE PAULA","Beneficiário questiona a falta de recebimento de faturas por e-mail, relatando que recebe autorizações de procedimentos, mas não as cobranças, e que foi orientado a comparecer presencialmente para solucionar o problema. Questiona também o aumento do valor cobrado por exame de raio-X, de R$ 5,00 para R$ 299,29, considerando-o abusivo, e solicita auditoria das cobranças e regularização do envio das faturas. Abertura da NIP: Aparecida de Goiânia/GO.","COBRANÇA DE BOLETO","MENSALIDADE OU OUTRAS COBRANÇAS","Não assistencial","COARR","APARECIDA DE GOIÂNIA/GO","","Ipasgo Saúde Básico"],
+["2026-10-11","14171123","HOSANA MADALENA DA COSTA VIEIRA PADILHA","Interlocutora, que se identifica como mãe do beneficiário, questiona a demora no reembolso de valores pagos indevidamente relacionados às terapias especiais do filho, realizadas em Trindade mediante acordo com o IPASGO desde agosto de 2024, com divisão de 70% para a operadora e 30% para a família. Informa que, nos meses de junho e agosto, foram debitados valores superiores a R$ 1.500,00 em cada mês e que, apesar de mais de 10 comparecimentos presenciais e da informação de que o reembolso seria efetuado, já transcorreram mais de 70 dias sem solução. Relata ainda a previsão de novo débito de R$ 2.320,00 para 13/10/2026, solicitando a regularização dos valores e a interrupção de cobranças indevidas. Abertura da NIP: Trindade/GO.","SOLICITAÇÃO DE REEMBOLSO REFERENTE A TERAPIAS ESPECIAIS","SOLICITAÇÃO DE REEMBOLSO","Assistencial","COARR","TRINDADE/GO","","Ipasgo Saúde Básico"],
+["2026-10-11","14171065","LUCAS VIEIRA BARROS DE ANDRADE","Beneficiário questiona a demora na autorização de tomografia computadorizada e a negativa de internação hospitalar durante atendimento de urgência no dia 07/10/2026. Relata que o exame, solicitado às 10h24 no pronto-socorro do Hospital J. H. Facuri, foi inicialmente retido para análise sob alegação de carência, sendo autorizado cerca de três horas depois. Informa que, após indicação de internação no Hospital Amparo, às 22h10, houve sucessivas negativas, apesar da autorização anterior do exame, e que a internação somente foi liberada às 1h50 do dia 08/10/2026, após mais de 10 ligações, para realização no município de Goiânia/GO.","TC - ABDOME TOTAL +DIARIA DE ENFERMARIA COM ALOJAMENTO CONJUNTO COM BANHEIRO PRIVATIVO","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","","Ipasgo Saúde Cerrado"],
+["2026-10-11","14170989","DAVID BARROS DE OLIVEIRA","Beneficiária questiona a falta de atendimento para consulta com dermatologista, necessária para avaliação de pintas suspeitas de câncer de pele. Informa que entrou em contato com a operadora em 23/09/2026 para solicitar garantia de atendimento e que, em 01/10/2026, foi comunicada por e-mail de que não havia prestador credenciado disponível, solicitando a garantia da consulta, para realização no município de Catalão/GO.","CONSULTA COM DERMATOLOGISTA","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","CATALÃO/GO","","Ipasgo Saúde Cerrado"],
+["2026-10-12","14171180","ELIANE DE FATIMA RODRIGUES MARTINS","Registro duplicado do item 14171176: beneficiária questiona a falta de substituição de aparelho que se encontra descarregado desde fevereiro ou março de 2026. Relata tentativas recorrentes de troca, sem sucesso devido às negativas da operadora, para atendimento no município de Goiânia/GO.","REVISÃO DE SISTEMA DE NEUROESTIMULAÇÃO","NEGATIVA DE COBERTURA","Assistencial","COARA/COGAT","GOIÂNIA/GO","","Ipasgo Saúde Especial"],
+["2026-10-12","14171176","MARIA APARECIDA RODRIGUES","Beneficiária questiona a falta de substituição de aparelho que se encontra descarregado desde fevereiro ou março de 2026. Informa que, desde então, tenta realizar a troca, mas recebe sucessivas negativas da operadora, permanecendo sem solução, para atendimento no município de Goiânia/GO.","REVISÃO DE SISTEMA DE NEUROESTIMULAÇÃO","NEGATIVA DE COBERTURA","Assistencial","COARA/COGAT","GOIÂNIA/GO","","Ipasgo Saúde Especial"],
+["2026-10-13","14172594","MARIANA MORAES SOUSA","Interlocutora, que se identifica como mãe da beneficiária, questiona a dificuldade para agendamento de consulta com endocrinologista pediátrico, solicitada à operadora em 25/08/2026. Informa que o pedido permanece sem solução, aguardando análise ou resposta da operadora, para realização no município de Goiânia/GO.","CONSULTA COM ENDOCRINOLOGISTA PEDIATRA","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","GOIÂNIA/GO","","Ipasgo Saúde Básico"],
+["2026-10-14","14176077","SONIA LUIZA DA SILVA RIBEIRO","Beneficiária questiona a negativa de fornecimento do medicamento Selpercatinibe (Retsevmo) 80 mg, prescrito para uso contínuo no tratamento de adenocarcinoma pulmonar metastático, não escamoso, com fusão do gene RET, conforme exames moleculares e PET-CT. Informa que o oncologista assistente indicou a terapia-alvo na dose de 160 mg duas vezes ao dia e que a solicitação foi recusada pela operadora sob a justificativa de se tratar de plano antigo. Alega que o medicamento possui registro na Anvisa e solicita sua dispensação, para atendimento no município de Goiânia/GO.","Selpercatinibe(Retsevmo®) 80mg","ANÁLISE DE COBERTURA","Assistencial","COPES","GOIÂNIA/GO","","Ipasgo Saúde Especial"],
+["2026-10-14","14175956","ERIKA FERNANDA DO VALE NUNES","Beneficiário questiona a ausência de resposta da operadora à reclamação registrada na ANS em 19/09/2026. Relata que o imunobiológico utilizado não apresenta o efeito esperado e que vem apresentando progressão dos sintomas associados à doença degenerativa, incluindo dores, névoa mental, fadiga, rigidez articular, peso e dor nas pernas e sensação de queimação nos pés. Solicita resposta e orientação quanto às providências cabíveis, para atendimento no município de Inhumas/GO.","SOLICITAÇÃO DO MEDICAMENTO BIMZELX 160 MG","ANÁLISE DE COBERTURA","Assistencial","COPES","INHUMAS/GO","","Ipasgo Saúde Básico"],
+["2026-10-14","14175128","ANTONIO MARTINS DIAS","Beneficiário questiona a falta de autorização para assistência domiciliar (home care), necessária para viabilizar a alta hospitalar após internação em UTI. Informa que já possui indicação de alta, mas permanece sem poder deixar o hospital devido à ausência de liberação do atendimento domiciliar pela operadora, solicitando providências urgentes, para realização no município de Anápolis/GO.","SOLICITAÇÃO DE ENFERMEIRA 24H PARA HOME CARE","HOME CARE","Assistencial","COATE","ANÁPOLIS/GO","","Ipasgo Saúde Especial"],
+["2026-10-14","14175049","ANTONIO MARTINS DIAS","Interlocutor, que se identifica como filho do beneficiário, questiona a falta de disponibilização de assistência domiciliar (home care) com técnico de enfermagem durante 24 horas, solicitada em 02/10/2026. Informa que a operadora havia se comprometido a providenciar o profissional até 13/10/2026, mas, na data prevista, comunicou que não conseguiu disponibilizá-lo devido à distância da residência do beneficiário, para realização no município de Anápolis/GO.","SOLICITAÇÃO DE ENFERMEIRA 24H PARA HOME CARE","HOME CARE","Assistencial","COATE","ANÁPOLIS/GO","","Ipasgo Saúde Especial"],
+["2026-10-14","14174986","LIVIA CRISTINA PEREIRA SILVEIRA","Beneficiário questiona a falta de atendimento presencial com dermatologista no município de Iporá/GO, onde reside. Informa que a operadora alegou não possuir profissionais credenciados na localidade e ofereceu consulta por telemedicina, modalidade que considera inadequada diante da necessidade de avaliação presencial da pele para investigação diagnóstica. Solicita a disponibilização de consulta e tratamento dermatológico em Iporá, com custeio integral pela operadora devido à insuficiência da rede credenciada, sem cobrança de coparticipação, para realização no município de Iporá/GO.","CONSULTA COM DERMATOLOGISTA","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","IPORÁ/GO","","Ipasgo Saúde Cerrado"],
+["2026-10-14","14174522","MARCOS GARCIA MEIRELLES","Beneficiário questiona divergências nas informações financeiras disponibilizadas no sistema do IPASGO, relatando o recebimento de notificações de inadimplência referentes às mensalidades de junho, julho e agosto, apesar de os descontos serem realizados automaticamente em contracheque. Informa que o sistema apresenta mensalidades já pagas como pendentes, períodos duplicados e competências ausentes. Relata ainda dificuldades para consultar o conteúdo das reclamações e respectivas respostas, além de inconsistências nas datas de abertura, fechamento e atualização dos protocolos. Solicita a regularização dos registros e a emissão das cobranças pendentes sem juros ou multas, considerando as falhas no processamento dos descontos automáticos. Abertura da NIP: Goiânia/GO.","COBRANÇA INDEVIDA DE MENSALIDADE","COBRANÇA INDEVIDA","Não assistencial","COARR","GOIÂNIA/GO","","Ipasgo Saúde Cerrado"],
+["2026-10-14","14174408","MIGUEL LOURENCO RODRIGUES","Interlocutora, que se identifica como mãe do beneficiário, questiona a negativa de cobertura para sessões de psicologia, solicitadas pelo Dr. Lizio Francisco S. Chaves em 02/10/2026. Informa que a operadora condicionou a autorização à apresentação de novo relatório médico justificativo, embora já tenha sido anexado um laudo à solicitação, para realização no município de Anápolis/GO.","SESSÕES DE PSICOTERAPIA","NEGATIVA DE COBERTURA","Assistencial","COARA","ANÁPOLIS/GO","","Ipasgo Saúde Básico"],
+["2026-10-14","14174405","PATRICIA DE SOUZA MATOS","Beneficiária questiona a emissão de boletos em duplicidade no mês de setembro de 2026. Informa que entrou em contato com a central de atendimento e recebeu prazo de 30 dias para regularização, porém não há confirmação da solução. Relata que as cobranças são realizadas por débito automático e que já recebeu o boleto referente a outubro. Abertura da NIP: Goiânia/GO.","COBRANÇA INDEVIDA DE MENSALIDADE","COBRANÇA INDEVIDA","Não assistencial","COARR","GOIÂNIA/GO","","Ipasgo Saúde Cerrado"],
+["2026-10-14","14174293","ATHIRSON VIANA SILVA","Beneficiário questiona o bloqueio do plano de saúde, que impediu a realização de consulta agendada para 13/10/2026. Informa que, ao tentar gerar o token de acesso pelo aplicativo, recebeu mensagem de bloqueio e foi informado pela operadora de que estaria em período de carência. Relata que, apesar das diversas tentativas de resolução, o plano permanece bloqueado, sem previsão de regularização. Abertura da NIP: Goiânia/GO.","BENEFICIÁRIO BLOQUEADO","CONTRATOS E REGULAMENTOS","Assistencial","CONEG","GOIÂNIA/GO","","Ipasgo Saúde Básico"],
+["2026-10-15","14178818","KAIQUE ALENCAR CAETANO","Beneficiário questiona a dificuldade para realização de sessões de psicoterapia, solicitadas à operadora em 29/09/2026. Informa que a operadora condiciona a liberação do atendimento à apresentação de relatório médico autorizado, permanecendo sem acesso ao tratamento, para realização no município de Anápolis/GO.","SESSÕES DE PSICOTERAPIA","NEGATIVA DE COBERTURA","Assistencial","COARA","ANÁPOLIS/GO","","Ipasgo Saúde Básico"],
+["2026-10-15","14178776","GLAYTON GOMES CAETANO","Responsável por beneficiário menor de idade, com Transtorno do Espectro Autista (TEA) e TDAH, questiona a interrupção da liberação de guias para continuidade das terapias realizadas há quatro anos no Instituto Kran. Informa que a operadora solicita relatório médico, embora as informações requeridas já constem em laudo anteriormente apresentado, ocasionando atrasos nos atendimentos terapêuticos e episódios de desorganização e desregulação da criança. Solicita análise urgente da documentação e regularização da liberação das guias, para realização no município de Anápolis/GO.","TERAPIA OCUPACIONAL","TEMPO MÁXIMO DE AUTORIZAÇÃO","Assistencial","COARA","ANÁPOLIS/GO","","Ipasgo Saúde Básico"],
+["2026-10-15","14178650","BENEDITO ANTONIO DE MORAES FILHO","Beneficiário questiona a negativa de cobertura para procedimento relacionado ao sistema de derivação ventricular interna, com válvulas ou revisões, solicitado em 30/09/2026. Informa que a operadora justificou a negativa pela existência de Cobertura Parcial Temporária (CPT) para doença ou lesão preexistente, relacionada a quadro crônico sequelar, embora procedimento anterior tenha sido autorizado em 03/08/2026. Solicita esclarecimentos e reavaliação da negativa, para realização no município de Guapó/GO.","NEGATIVA PARA SISTEMA DE DERIVAÇÃO VENTRICULAR INTERNA","NEGATIVA DE COBERTURA","Assistencial","COARA","GUAPÓ/GO","","Ipasgo Saúde Família"],
+["2026-10-15","14178212","EDNALVA MARIA DA SILVA","Beneficiária questiona a necessidade de assistência por técnica de enfermagem para auxiliar nas atividades diárias, incluindo locomoção, banho, higiene pessoal, alimentação e administração de medicamentos, devido à ausência de força nos membros inferiores. Solicita a disponibilização de profissional para os cuidados necessários, para atendimento no município de Rubiataba/GO.","SOLICITAÇÃO PARA HOME CARE","HOME CARE","Assistencial","COATE","RUBIATABA/GO","","Ipasgo Saúde Básico"],
+["2026-10-15","14178194","SILVANA CAETANO VELOZO SILVA","Beneficiário questiona a ausência de resposta da operadora à solicitação de punção lombar com manometria para coleta de líquido cefalorraquidiano, realizada em 24/09/2026. Informa que não recebeu retorno sobre o pedido, permanecendo sem definição quanto à autorização do procedimento, para realização no município de Goiânia/GO.","SOLICITAÇÃO DE COBERTURA PARA PUNÇÃO LOMBAR","SOLICITAÇÃO DE COBERTURA","Assistencial","COGAT","GOIÂNIA/GO","","Ipasgo Saúde Básico"],
+["2026-10-15","14177735","JOAO PEDRO GUIMARAES SOUZA","Beneficiário questiona a falta de cobertura para exame de ultrassonografia solicitado por ortopedista, relatando que a operadora informou não possuir clínica credenciada em Aragarças/GO. Informa que reside em Barra do Garças/MT, município próximo à localidade, e que a operadora também não autorizou a realização do exame por prestadores particulares nessas cidades. Relata ainda a ausência de indicação de profissionais odontológicos nas localidades e de alternativas viáveis para garantir o atendimento.","ULTRASSOM PUNHO DIREITO","INSUFICIÊNCIA DE REDE","Assistencial","COGAT","ARAGARÇAS/GO","","Ipasgo Saúde Básico"],
+["2026-10-15","14177699","ENZO JOSE SILVA PEREIRA","Interlocutora, que se identifica como mãe do beneficiário, questiona a dificuldade para agendamento de consulta com psiquiatra pediátrico. Relata que a operadora dispõe de apenas um psiquiatra na rede credenciada, que não atende especificamente o público pediátrico, e informa que não deseja continuar o acompanhamento com esse profissional. Solicita a disponibilização de atendimento especializado, para realização no município de Goiânia/GO.","SOLICITAÇÃO DE REDE CREDENCIADA PARA CONSULTA COM PSIQUIATRA","INSUFICIÊNCIA DE REDE","Assistencial","CODIN/COGAT","GOIÂNIA/GO","","Ipasgo Saúde Família"],
+["2026-10-15","14177570","EVANDRO FERREIRA DOS SANTOS","Beneficiário questiona a negativa de cobertura para materiais necessários à realização de cateterismo e angioplastia, incluindo agulhas para punção cutânea e percutânea e endopróteses vasculares periféricas de nitinol e PTFE. Solicita a autorização e disponibilização dos materiais necessários ao procedimento, para realização no município de Goiânia/GO.","NEGATIVA PARA AGULHAS PARA PUNÇÃO CUTÂNEA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","","Ipasgo Saúde Especial"],
+["2026-10-15","14177555","SOLANGE MARIA DUARTE DOS SANTOS","Beneficiário questiona a negativa de cobertura para materiais necessários à realização de cateterismo e angioplastia, incluindo agulhas para punção cutânea e percutânea e endopróteses vasculares periféricas de nitinol e PTFE. Solicita a autorização e disponibilização dos materiais necessários ao procedimento, para realização no município de Goiânia/GO.","NEGATIVA PARA AGULHAS PARA PUNÇÃO CUTÂNEA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","","Ipasgo Saúde Especial"],
+["2026-10-15","14177549","FERNANDA LUZIA PIRES ALEIXO","Beneficiária questiona a negativa de cobertura para exame de Beta-hCG, solicitado em 09/10/2026. Informa que a operadora alegou que o exame não consta no Rol de Procedimentos e Eventos em Saúde vigente e que a beneficiária não possui idade fértil, porém esclarece que a solicitação é necessária como preparação para procedimento cirúrgico, para realização no município de Goiânia/GO.","NEGATIVA POR BETA HCG","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","","Ipasgo Saúde Especial"],
+["2026-10-15","14177369","ELIZANGELA SANTOS MACIEL","Beneficiária questiona a negativa de cobertura para colecistectomia sem colangiografia por videolaparoscopia (código 31005497), solicitada em 13/10/2026. Informa que a operadora negou o procedimento sob a justificativa de que está cumprindo período de carência, para realização no município de Ceres/GO.","NEGATIVA DE COLECISTECTOMIA POR PERÍDO DE CARÊNCIA","PERÍODO DE CARÊNCIA","Assistencial","CONEG","CERES","","Ipasgo Saúde Cerrado"],
+["2026-10-15","14177118","JULIA ISABELA GOMIDES BARROS","Interlocutora, que se identifica como mãe do beneficiário, questiona a negativa de cobertura para radiografia solicitada pela Dra. em 05/10/2026. Informa que a operadora justificou a negativa alegando que o procedimento possui finalidade estética, para realização no município de Goiânia/GO.","RADIOGRAFIA ODONTOLÓGICA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","","Ipasgo Saúde Básico"],
+["2026-10-16","14181639","IVAN SERGIO PANIAGO","Beneficiário questiona a demora para realização de exame cardíaco solicitado pelo médico durante consulta. Relata que seu pai, com mais de 60 anos, diabético e com histórico de cateterismo, apresenta forte pressão no peito e recebeu indicação de realização urgente do exame. Entretanto, ao tentar agendar o retorno, foi informado de que a data mais próxima disponível seria apenas no final de novembro, para realização no município de Goiânia/GO.","CONSULTA DE RETORNO","PRAZO MÁXIMO PARA ATENDIMENTOLSO","Assistencial","CODIN/COGAT","GOIÂNIA/GO","","Ipasgo Saúde Básico"],
+["2026-10-16","14181547","SANDRA SANTANA SANTOS","Beneficiário questiona a dificuldade para agendamento de consulta com endocrinologista, Dra. Juliana Cavalcante de Albuquerque, CRM-GO 9401. Relata que precisa aguardar a abertura da agenda e que, ao entrar em contato com a central telefônica 0800 no horário informado, as vagas já estão esgotadas. Informa, ainda, que não consegue obter informações sobre novas aberturas de agenda e solicita auxílio para conseguir a consulta, no município de Goiânia/GO.","CONSULTA COM ENDOCRIOLOGISTA","PRAZO MÁXIMO PARA ATENDIMENTO","Assistencial","CODIN/COGAT","GOIÂNIA/GO","","Ipasgo Saúde Básico"],
+["2026-10-16","14181535","GIZELI SOUZA DE ALMEIDA","Beneficiário questiona cobranças em duplicidade de coparticipações referentes às sessões de fisioterapia de seu filho. Encaminha declaração para análise e adoção das providências necessárias. Abertura da NIP: Goiânia/GO.","COBRANÇA DE COPARTICIPAÇÕES EM DUPLICIDADE","REEMBOLSO","Assistencial","COARR","GOIÂNIA/GO","","Ipasgo Saúde Especial"],
+["2026-10-16","14181416","ANA PAULA PIRES DE MORAIS","Beneficiário questiona a não cobertura do procedimento código TUSS 85100196, solicitado em 29/09/2026. Informa que a operadora discordou da indicação e encaminhou o caso para avaliação por junta médica, para realização no município de Anápolis/GO.","RESTAURAÇÃO EM RESINA FOTOPOLIMERIZÁVEL - 1 FACE","NEGATIVA DE COBERTURA","Assistencial","COARA","ANÁPOLIS/GO","","Ipasgo Saúde Especial"],
+["2026-10-16","14180599","VIVIANE BORGES VIEIRA DE CARVALHO","Beneficiária questiona a negativa de cobertura para colectomia com ou sem colostomia, solicitada em 15/10/2026. Informa que a operadora recusou o procedimento sob a justificativa de ausência de cobertura contratual, para realização no município de Itumbiara/GO.","NEGATIVA PARA COLECTOMIA COM OU SEM COLOSTOMIA","NEGATIVA DE COBERTURA","Assistencial","COARA","ITUMBIARA/GO","","Ipasgo Saúde Básico"],
+["2026-10-16","14180044","VINICIUS RODRIGUES SOUZA","Beneficiário questiona a dificuldade para cancelamento do plano IPASGO após mudança de estado em decorrência de novo vínculo profissional no serviço público em São Paulo. Informa que, inicialmente, foi orientado a realizar o cancelamento presencialmente, o que é inviável por não residir mais em Goiás, e que posteriormente tentou solicitar a exclusão pelo Portal do Beneficiário, mas o sistema bloqueia o procedimento devido a supostas pendências financeiras. Relata que quitou os boletos disponibilizados, porém persistem divergências entre as informações do site/aplicativo e as fornecidas pelos atendentes, além da impossibilidade de emitir boletos referentes às mensalidades apontadas como pendentes. Solicita a regularização das inconsistências, a viabilização do cancelamento e a prevenção de novas cobranças. Abertura da NIP: Goiânia/GO.","SOLICITAÇÃO DE RESCISÃO","CONTRATOS E REGULAMENTOS","Não assistencial","CONEG","GOIÂNIA/GO","","Ipasgo Saúde Básico"],
+["2026-10-16","14179483","LILIAN CORREA MELO BRITO TEIXEIRA","Beneficiário questiona a demora na autorização de ultrassonografia transvaginal, ultrassonografia das mamas, ultrassonografia de abdome total e mamografia, solicitadas pelo Dr. Abimael Silveiro da Silva, CRM-GO 7367, em 13/10/2026. Informa que os pedidos permanecem em análise, sem resposta definitiva da operadora, para realização no município de Anápolis/GO.","ULTRASSOM TRANSVAGINAL","TEMPO MÁXIMO DE AUTORIZAÇÃO","Assistencial","COARA","ANÁPOLIS/GO","","Ipasgo Saúde Básico"],
+["2026-10-17","14181709","WILMA LOPES DA SILVA FERREIRA","Beneficiário questiona cobranças excessivas de coparticipação e falta de transparência na comunicação dos valores referentes ao plano de saúde de seus pais idosos. Informa que paga mensalmente R$ 2.785,35, mas recebeu cobranças que totalizam R$ 11.018,11, sendo R$ 8.144,65 referentes à coparticipação. Relata que, em 2025, a operadora deixou de encaminhar regularmente os valores, ocasionando pendências e bloqueio de atendimentos, tendo sido informado posteriormente sobre problemas no sistema de geração das cobranças. Questiona, ainda, novos valores elevados, inclusive referentes a exames realizados em 2025, e solicita revisão das cobranças e garantia de continuidade dos atendimentos de seus pais durante a análise da reclamação. Abertura da NIP: Goiânia/GO.","COBRANÇA DE COPARTICIPAÇÕES INDEVIDA","COBRANÇA INDEVIDA","Não assistencial","COARR","GOIÂNIA/GO","","Ipasgo Saúde Especial"],
+["2026-10-18","14182026","VALDECI ROSA LIMAS","Demanda duplicada da nº 14181997. Beneficiário questiona a negativa de cobertura para o medicamento semaglutida, para atendimento no município de Goiânia/GO.","NEGATIVA PARA SEMAGLUTIDA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","","Ipasgo Saúde Especial"],
+["2026-10-18","14181997","VALDECI ROSA LIMAS","Beneficiário questiona a negativa de cobertura para o medicamento semaglutida, para atendimento no município de Goiânia/GO.","NEGATIVA PARA SEMAGLUTIDA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","","Ipasgo Saúde Especial"],
+["2026-10-19","14184326","GABRIELA MENDES PEREIRA DOS SANTOS","Beneficiária questiona a demora na análise de exame realizado após consulta médica de rotina e coleta de material. Relata que, ao entrar em contato com o IPASGO Saúde, foi informada de que o prazo de análise seria de dez dias, mas o período já foi ultrapassado sem resposta. Demonstra preocupação com a possibilidade de perda do material coletado, para realização no município de Goiânia/GO.","HPV ( D PAPILOMA HUMANO) + SUBTIPAGEM","TEMPO MÁXIMO DE AUTORIZAÇÃO","Assistencial","COARA","GOIÂNIA/GO","","Ipasgo Saúde Especial"],
+["2026-10-19","14184154","MISRAIM SOARES PAIVA BARCELOS","Beneficiária questiona a dificuldade para obter garantia de atendimento de alta complexidade para cirurgia de oclusão de comunicação interatrial, incluindo internação e exames pré-operatórios. Relata que abriu um protocolo em 04/09/2026, posteriormente negado, e apresentou nova solicitação em 25/09/2026, encerrada em 15/10/2026 com resposta por e-mail informando a ausência de profissionais cadastrados na rede credenciada. Informa que há quase dois meses tenta obter autorização, sem esclarecimentos suficientes e com negativas recorrentes. Solicita a autorização dos exames pré-operatórios, da internação hospitalar e da cirurgia com os médicos que acompanham a paciente, Dr. Paulo Correia Calamita e Dr. Jonathan Guimarães Lombardi, para realização no município de Goiânia/GO.","OCLUSÃO PERCUTÂNEA DE COMUNICAÇÃO INTERATRIAL","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","","Ipasgo Saúde Básico"],
+["2026-10-19","14183530","ANTONIA VILMAR SOARES LIRA","Beneficiário questiona a negativa de cobertura para quimioterapia injetável pela operadora IPASGO Saúde, alegando ausência de justificativa plausível para a recusa. Informa que não localizou a operadora na lista disponibilizada e apresenta os registros IPASGO Saúde Cerrado e IPASGO Saúde Família, ambos referentes a planos com enfermaria coletiva, para realização no município de Formosa/GO.","NEGATIVA QUIMIOTERAPIA INJETÁVEL","NEGATIVA DE COBERTURA","Assistencial","COARA","FORMOSA/GO","","Ipasgo Saúde Básico"],
+["2026-10-19","14183488","NATASHA CABRAL COSTA","Beneficiária questiona a negativa de autorização de material OPME, especificamente uma pinça necessária à realização de cirurgia já autorizada, incluindo a diária hospitalar. Relata que a primeira solicitação foi negada e que o médico apresentou relatório mais detalhado para justificar a necessidade do material. Informa que aguarda há meses pela realização do procedimento e que a cirurgia está agendada para 13/11/2026, dependendo apenas da autorização do material, para realização no município de Goiânia/GO.","SOLICITAÇÃO DE AUTORIZAÇÃO DE PINÇA LIGASURE","OPME","Assistencial","COARA","GOIÂNIA/GO","","Ipasgo Saúde Básico"],
+["2026-10-19","14182876","VALERIA GONCALVES DE ALMEIDA PAZ","Beneficiária questiona o reembolso parcial das despesas referentes ao processo SEI. Informa que recebeu apenas R$ 99,50, valor insuficiente para cobrir integralmente as despesas com o atendimento. Solicita esclarecimentos sobre os critérios utilizados para o cálculo do reembolso e os motivos pelos quais as demais despesas não foram contempladas, considerando os documentos apresentados e as condições de cobertura aplicáveis. Abertura da NIP: Goiânia/GO.","SOLICITAÇÃO DE REEMBOLSO REFERENTE AO PROCESSO SEI DEFERIDO","REEMBOLSO","Assistencial","COARR","GOIÂNIA/GO","","Ipasgo Saúde Básico"],
+["2026-10-19","14182614","CLERIA RIBEIRO SILVA","Beneficiária questiona a negativa de cobertura dos materiais necessários à realização do procedimento de revisão cirúrgica de prótese de ombro, código 30717159, para realização no município de Goiânia/GO.","AUTORIZAÇÃO CIRÚRGICA DE PRÓTESE DE OMBRO","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","","Ipasgo Saúde Básico"],
+["2026-10-19","14182599","LUZENI MARIA DE MORAIS SILVA","Interlocutora, que se identifica como filha do beneficiário, questiona a demora na autorização de ultrassonografia solicitada com urgência em 14/10/2026. Relata que o pedido permanece em análise ou não recebeu resposta conclusiva da operadora, para realização no município de Goiânia/GO.","AUTORIZAÇÃO DE US ARTICULAR","TEMPO MÁXIMO DE AUTORIZAÇÃO","Assistencial","COARA","GOIÂNIA/GO","","Ipasgo Saúde Básico"],
+["2026-10-19","14182315","ARTHUR RAFAEL MENDANHA GOMES","Interlocutora, que se identifica como mãe do beneficiário, questiona a ausência de cobertura e de prestadores na rede credenciada para as terapias de ABA (duas sessões semanais), terapia ocupacional em ABA (duas sessões semanais), psicopedagogia em ABA (duas sessões semanais) e musicoterapia em ABA (uma sessão semanal). Informa que os procedimentos foram solicitados em 24/04/2026 e que a operadora alegou não possuir prestador credenciado para a realização dos serviços, no município de Anicuns/GO.","INSUFICIÊNCIA DE REDE PARA TERAPAIAS EM ABA","INSUFICIÊNCIA DE REDE","Assistencial","COARA","ANICUNS/GO","","Ipasgo Saúde Especial"],
+["2026-10-19","14182100","JANAINE DE SOUSA ABEL","Beneficiária questiona a demora na autorização dos exames de ultrassonografia de tireoide e citopatologia cervicovaginal oncótica, solicitados em 14/10/2026. Informa que os pedidos permanecem em análise ou não receberam resposta conclusiva, para realização no município de Itaberaí/GO.","AUTORIZAÇÃO PARA US DE TIREOIDE, CITOPATOLOGIA VAGINAL ONCÓTICA.","TEMPO MÁXIMO DE AUTORIZAÇÃO","Assistencial","COARA","ITABERAÍ/GO","","Ipasgo Saúde Básico"],
+["2026-10-19","14182094","ELEASHA PAULINE FLORENTINO","Beneficiária questiona a demora na autorização do exame de ferritina, solicitado à operadora em 19/10/2026. Informa que o pedido permanece em análise ou não recebeu resposta conclusiva, para realização no município de Inhumas/GO.","AUTORIZAÇÃO PARA FERRITINA","TEMPO MÁXIMO DE AUTORIZAÇÃO","Assistencial","COARA","INHUMAS/GO","","Ipasgo Saúde Especial"],
+["2026-10-20","14187074","EMILLENY LIMA COUTO AMADOR","Beneficiária questiona a negativa de autorização do exame de cariótipo com bandamento G, solicitado por médica geneticista para investigação genética familiar. Relata que seu filho possui diagnóstico de microdeleção 16p11.2, confirmado por exame e laudo médico, tornando necessária a investigação de possíveis alterações cromossômicas familiares. Solicita a reanálise da negativa e a autorização do procedimento ou, caso a recusa seja mantida, o envio de justificativa formal e contratual, para realização no município de Goiânia/GO.","NEGATIVA PARA EXAME DE CARIOTIPO","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","","Ipasgo Saúde Especial"],
+["2026-10-20","14186930","CAMILLA DE SOUZA CARVALHO","Beneficiária questiona a dificuldade de acesso às sessões de betaterapia pós-cirúrgica. Relata que foram solicitadas dez sessões por meio de relatório médico, mas a operadora autorizou apenas uma. Informa que realizou diversas tentativas de localizar prestadores credenciados, inclusive presencialmente junto ao IPASGO Saúde, porém recebeu indicações de estabelecimentos que não realizavam o serviço solicitado. Após novas tentativas, a própria operadora informou não possuir prestadores credenciados e abriu solicitação de garantia de atendimento, ainda sem previsão de resposta. Solicita providências urgentes para viabilizar o tratamento, para realização no município de Goiânia/GO.","SOLICITAÇÃO DE SESSÕES DE BETATERAPIA","INSUFIÊNCIA DE REDE","Assistencial","COGAT/COARA","GOIÂNIA/GO","","Ipasgo Saúde Básico"],
+["2026-10-20","14186537","KAMILLA SANDY DE CASTRO","Beneficiário questiona a falta de autorização para exames solicitados durante consulta realizada em 19/10/2026, previamente autorizada pela operadora. Relata que não recebeu justificativa para a pendência dos exames e informa que necessita realizá-los por estar em uso de medicação e apresentar dores, para realização no município de Inhumas/GO.","SOLICITAÇÃO DE AUTORIZAÇÃO EXAMES LABORATORIAIS, US ABDOMEM TOTAL","TEMPO MÁXIMO DE AUTORIZAÇÃO","Assistencial","COARA","INHUMAS/GO","","Ipasgo Saúde Especial"],
+["2026-10-20","14186533","PATRICIA SODRE DE OLIVEIRA","Beneficiária questiona a demora na liberação de exame citopatológico cervicovaginal (Papanicolau), cujo material foi coletado durante consulta ginecológica em 14/10/2026, e de ultrassonografia transvaginal. Relata que, após ser informada sobre o prazo para entrega do material ao laboratório, entrou em contato com a operadora e solicitou agilidade na liberação. Entretanto, após seis dias, o exame permanecia pendente, inviabilizando a entrega do material coletado dentro do prazo informado. Também relata que a ultrassonografia transvaginal continua sem autorização, para realização no município de Goiânia/GO.","SOLICITAÇÃO DE AUTORIZAÇÃO EXAMES GINICOLOGICO","TEMPO MÁXIMO DE AUTORIZAÇÃO","Assistencial","COARA","GOIÂNIA/GO","","Ipasgo Saúde Básico"],
+["2026-10-20","14186216","ONEIDE MIRANDA DE CARVALHO ALVES","Interlocutora, que se identifica como filha da beneficiária e representante da pessoa jurídica contratante, questiona o não recebimento de cópia do contrato coletivo. Abertura da NIP: Porangatu/GO.","SOLICITAÇÃO DA CÓPIA DO CONTRATO","CONTRATOS E REGULAMENTOS","Não assistencial","CONEG","GOIÂNIA/GO","","Ipasgo Saúde Básico"],
+["2026-10-20","14185707","LUCELMA ALVES PINTO RIBEIRO","Beneficiária questiona a demora na autorização de cirurgia para retirada do útero, solicitada em 09/10/2026. Relata que a operadora exigiu relatório médico complementar, embora afirme já ter enviado a documentação necessária, e que não recebeu retorno sobre a solicitação. Informa que houve pedido anterior, em 30/09/2026, negado por falta de documentação, para realização no município de Goiânia/GO.","NEGATIVA DE HISTERECTOMIA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","","Ipasgo Saúde Especial"],
+["2026-10-20","14185486","RAIANE GONCALVES DE OLIVEIRA","Beneficiária questiona a negativa de cobertura para exame de Zika, solicitado em 10/10/2026. Informa que a operadora recusou o procedimento sob a justificativa de que o exame não consta no Rol de Procedimentos e Eventos em Saúde vigente, para realização no município de Palmeiras de Goiás/GO.","NEGATIVA DE EXAME DE ZIKA VIRUS","NEGATIVA DE COBERTURA","Assistencial","COARA","PALMEIRAS DE GOIÁS/GO","","Ipasgo Saúde Básico"],
+["2026-10-20","14185201","ERISVANDA BORGES ARANTES","Beneficiária questiona a falta de autorização para o exame de tomografia de coerência óptica monocular, código TUSS 41501144, solicitado em 01/10/2026. Relata que a operadora alegou insuficiência de dados para análise da pertinência técnica do exame, para realização no município de Goiânia/GO.","NEGATIVA DE TOMOGRAFIA DE COERÊNCIA ÓTICA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","","Ipasgo Saúde Básico"],
+["2026-10-20","14184925","PEDRO ALEXANDRE ALVES VIEIRA MATOS","Interlocutora, que se identifica como mãe do beneficiário, questiona a dificuldade de acesso a atendimento especializado e à cirurgia para correção de criptorquidia. Relata que seu filho tem 16 meses e apresenta indicação cirúrgica, preferencialmente até os 18 meses. Informa que não há profissional disponível em Minaçu/GO e que, após buscar atendimento em hospitais de Goiânia e contatar a operadora, foi informada sobre a indisponibilidade de cirurgiões com agenda, tanto para datas próximas quanto em outras localidades. Solicita viabilização do atendimento em tempo hábil, diante dos riscos associados ao adiamento da cirurgia, para realização no município de Goiânia/GO.","CONSULTA COM CIRURGIÃO PEDIÁTRICO","INSUFIÊNCIA DE REDE","Assistencial","CODIN/COGAT","GOIÂNIA/GO","","Ipasgo Saúde Família"],
+["2026-10-20","14184828","ANNA KAROLINE ANASENKO FERREIRA GONCALVES","Beneficiário em tratamento de câncer de reto desde janeiro de 2025 questiona a negativa de cobertura de materiais essenciais para utilização da bolsa de ileostomia. Relata que foi submetido a uma colectomia em agosto de 2025, com retirada de parte do intestino e do reto, necessitando desde então da bolsa e dos materiais para seu bem-estar. Informa que a solicitação foi negada pelo IPASGO Saúde, para utilização no município de Goiânia/GO.","COBRANÇA INDEVIDA E FALTA DE ESTORNO","COBRANÇA INDEVIDA","Não assistencial","COARR","GOIÂNIA/GO","","Ipasgo Saúde Especial"],
+["2026-10-20","14184818","ISIS COSTA LIMA SOUZA","Interlocutora, que se identifica como mãe da beneficiária, questiona a dificuldade de acesso às terapias de psicologia, fonoaudiologia, terapia ocupacional, psicopedagogia e musicoterapia, solicitadas em 30/09/2026. Relata que a operadora exige relatório médico complementar para dar continuidade à análise, embora afirme já ter encaminhado toda a documentação necessária. Informa que, mesmo assim, permanece sem autorização para os atendimentos, no município de Aparecida de Goiânia/GO.","NEGATIVA PARA PSICOLOGIA, FONOUDIOLOGIA, TERAPIA OCUPACIONAL, PSICOPEDAGOGA E MUSICOTERAPIA","NEGATIVA DE COBERTURA","Assistencial","COARA","APARECIDA DE GOIÂNIA/GO","","Ipasgo Saúde Especial"],
+["2026-10-20","14184802","ROGERIO RODRIGUES DE SOUZA","Beneficiário em tratamento de câncer de reto desde janeiro de 2025 questiona a negativa de cobertura de materiais essenciais para utilização da bolsa de ileostomia. Relata que foi submetido a uma colectomia em agosto de 2025, com retirada de parte do intestino e do reto, necessitando desde então da bolsa e dos materiais para seu bem-estar. Informa que a solicitação foi negada pelo IPASGO Saúde, para utilização no município de Goiânia/GO.","NEGATIVA DE MATERIAIS DE ESTOMIA","NEGATIVA DE COBERTURA","Assistencial","COARA","GOIÂNIA/GO","","Ipasgo Saúde Básico"]
+];
+
+/* ============================================================
+   PERSISTÊNCIA
+   ============================================================ */
+const STORAGE_KEY = 'nip_ipasgo_records_v9';
+const STORAGE_TS  = 'nip_ipasgo_ts_v9';
+
+function buildInitial() {
+  return RAW_DATA.map((r, i) => ({
+    id: i + 1,
+    data: r[0], demanda: r[1], beneficiario: r[2], descricao: r[3],
+    objeto: r[4], causa: r[5], natureza: r[6], area: r[7], regiao: r[8], obs: r[9] || '',
+    plano: r[10] || ''
+  }));
+}
+
+function loadFromLocal() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length) return parsed;
+    }
+  } catch(e) { console.warn('Erro ao ler localStorage', e); }
+  return null;
+}
+
+function saveToLocal() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    localStorage.setItem(STORAGE_TS, new Date().toISOString());
+  } catch(e) { console.warn('Erro ao salvar localStorage', e); }
+}
+
+async function loadFromServer() {
+  if (!API_URL) return null;
+  try {
+    const res = await fetch(API_URL, { cache: 'no-store' });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return Array.isArray(data) && data.length ? data : null;
+  } catch(e) { return null; }
+}
+
+async function saveToServer() {
+  if (!API_URL) return false;
+  try {
+    const res = await fetch(API_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(records)
+    });
+    return res.ok;
+  } catch(e) { return false; }
+}
+
+function setSyncStatus(state, text) {
+  const dot = $('syncDot');
+  dot.classList.remove('off', 'err');
+  if (state === 'offline') dot.classList.add('off');
+  if (state === 'error') dot.classList.add('err');
+  $('statusText').textContent = text;
+}
+
+async function persist() {
+  const ind = $('saveIndicator');
+  const txt = $('saveStatus');
+  ind.classList.remove('error');
+  ind.classList.add('saving');
+  txt.textContent = 'Salvando...';
+  saveToLocal();
+
+  if (API_URL) {
+    const ok = await saveToServer();
+    if (!ok) {
+      ind.classList.remove('saving');
+      ind.classList.add('error');
+      txt.textContent = 'Salvo localmente (servidor offline)';
+      setSyncStatus('error', `${records.length} regs · servidor offline`);
+      return;
+    }
+  }
+
+  ind.classList.remove('saving');
+  const ts = new Date();
+  txt.textContent = API_URL
+    ? `Sincronizado · ${records.length} regs · ${ts.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`
+    : `Salvo localmente · ${records.length} regs`;
+  setSyncStatus('online', `${records.length} NIP(s) · atualizado agora`);
+}
+
+/* ============================================================
+   ESTADO
+   ============================================================ */
+let records = [];
+let nextId = 1;
+let recordToDelete = null;
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const $ = (id) => document.getElementById(id);
+
+function escapeHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+function formatDate(iso) {
+  if (!iso) return '—';
+  const p = String(iso).split('-');
+  return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : iso;
+}
+function todayISO() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+function uniqueSorted(arr){ return [...new Set(arr.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')); }
+function countBy(rows,key){ return rows.reduce((a,r)=>{a[r[key]]=(a[r[key]]||0)+1;return a;},{}); }
+function normalizeNat(n){
+  const s = String(n||'').trim();
+  if (/^assistencial$/i.test(s)) return 'Assistencial';
+  if (/^n[ãa]o\s*assistencial$/i.test(s)) return 'Não assistencial';
+  return s || 'Assistencial';
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+function showToast(msg, type='success') {
+  const wrap = $('toastWrap');
+  const el = document.createElement('div');
+  el.className = 'toast' + (type === 'error' ? ' error' : type === 'warn' ? ' warn' : '');
+  const icon = type === 'error'
+    ? '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'
+    : type === 'warn'
+    ? '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'
+    : '<path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><polyline points="22 4 12 14.01 9 11.01"/>';
+  el.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${icon}</svg><span>${escapeHtml(msg)}</span>`;
+  wrap.appendChild(el);
+  setTimeout(() => {
+    el.style.transition = 'opacity .3s ease, transform .3s ease';
+    el.style.opacity = '0'; el.style.transform = 'translateX(30px)';
+    setTimeout(() => el.remove(), 320);
+  }, 3000);
+}
+
+/* ============================================================
+   FILTROS
+   ============================================================ */
+function getFiltered() {
+  const q = $('search').value.trim().toLowerCase();
+  const nat = $('filterNatureza').value;
+  const plano = $('filterPlano').value;
+  const area = $('filterArea').value;
+  const reg = $('filterRegiao').value;
+  const from = $('dateFrom').value;
+  const to = $('dateTo').value;
+
+  return records.filter(r => {
+    if (nat && r.natureza !== nat) return false;
+    if (plano && r.plano !== plano) return false;
+    if (area && r.area !== area) return false;
+    if (reg && r.regiao !== reg) return false;
+    if (from && r.data < from) return false;
+    if (to && r.data > to) return false;
+    if (q) {
+      const hay = [r.demanda,r.beneficiario,r.plano,r.descricao,r.objeto,r.causa,r.natureza,r.area,r.regiao,formatDate(r.data)].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  }).sort((a,b) => a.data !== b.data ? (a.data < b.data ? 1 : -1) : b.id - a.id);
+}
+
+function refreshFilterOptions() {
+  const cfgs = [
+    { el:$('filterPlano'),  values:uniqueSorted(records.map(r=>r.plano)),  ph:'Todos os planos' },
+    { el:$('filterArea'),   values:uniqueSorted(records.map(r=>r.area)),   ph:'Todas as áreas' },
+    { el:$('filterRegiao'), values:uniqueSorted(records.map(r=>r.regiao)), ph:'Todas as regiões' }
+  ];
+  cfgs.forEach(({el,values,ph}) => {
+    const cur = el.value;
+    el.innerHTML = `<option value="">${ph}</option>` + values.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+    el.value = values.includes(cur) ? cur : '';
+  });
+  $('listaAreas').innerHTML   = uniqueSorted(records.map(r=>r.area)).map(v=>`<option value="${escapeHtml(v)}"></option>`).join('');
+  $('listaRegioes').innerHTML = uniqueSorted(records.map(r=>r.regiao)).map(v=>`<option value="${escapeHtml(v)}"></option>`).join('');
+  $('listaPlanos').innerHTML  = uniqueSorted(records.map(r=>r.plano)).map(v=>`<option value="${escapeHtml(v)}"></option>`).join('');
+}
+
+/* ============================================================
+   KPIs
+   ============================================================ */
+function updateKPIs(rows) {
+  const total = rows.length;
+  const assist = rows.filter(r=>r.natureza==='Assistencial').length;
+  const nao = rows.filter(r=>r.natureza==='Não assistencial').length;
+  const areas = uniqueSorted(rows.map(r=>r.area)).length;
+  const regioes = uniqueSorted(rows.map(r=>r.regiao)).length;
+  const pA = total ? Math.round((assist/total)*100) : 0;
+  const pN = total ? Math.round((nao/total)*100) : 0;
+
+  $('kpiTotal').textContent = total;
+  $('kpiTotalSub').textContent = `Base total: ${records.length} registros`;
+  $('kpiAssist').textContent = assist;
+  $('kpiNaoAssist').textContent = nao;
+  $('kpiAreas').textContent = areas;
+  $('kpiRegioesSub').textContent = `${regioes} região(ões) atendida(s)`;
+  $('tagAssist').textContent = pA + '%';
+  $('tagNaoAssist').textContent = pN + '%';
+  $('barAssist').style.width = pA + '%';
+  $('barNaoAssist').style.width = pN + '%';
+
+  const planosDistintos = uniqueSorted(rows.map(r=>r.plano)).length;
+  const comPlano = rows.filter(r => r.plano && String(r.plano).trim()).length;
+  const pP = total ? Math.round((comPlano/total)*100) : 0;
+
+  $('kpiPlanos').textContent = planosDistintos;
+  $('kpiPlanosSub').textContent = `${comPlano} de ${total} com plano informado`;
+  $('barPlanos').style.width = pP + '%';
+
+  renderPlanosChips(rows);
+  renderPlanosDistintos(rows);
+}
+
+/* ============================================================
+   PLANOS EM DESTAQUE — ACUMULATIVO
+   ============================================================ */
+function renderPlanosChips(rows) {
+  const bar = $('planosCumulativeBar');
+  const legend = $('planosCumulativeLegend');
+  const info = $('planosTotalInfo');
+
+  const porPlano = countBy(rows.filter(r => r.plano && String(r.plano).trim()), 'plano');
+  const entries = Object.entries(porPlano).sort((a,b) => b[1] - a[1]);
+  const totalComPlano = entries.reduce((s, [,v]) => s + v, 0);
+
+  if (!entries.length) {
+    bar.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;width:100%;color:var(--gray-400);font-size:.75rem;font-weight:600;font-style:italic">Nenhum plano informado ainda.</div>';
+    legend.innerHTML = '';
+    info.textContent = '—';
+    return;
+  }
+
+  const palette = ['#0B3D2E','#0E7A57','#10B981','#34D399','#6EE7B7','#14523E','#059669','#A7F3D0'];
+
+  let cumulative = 0;
+  const segments = entries.map(([plano, count], idx) => {
+    cumulative += count;
+    const pct = (count / totalComPlano) * 100;
+    const color = palette[idx % palette.length];
+    return `<div class="planos-cumulative-seg"
+              style="width:${pct.toFixed(3)}%;background:${color}"
+              data-cumulative="${cumulative}"
+              title="${escapeHtml(plano)} — ${count} NIP(s) · acumulado: ${cumulative} (${((cumulative/totalComPlano)*100).toFixed(1)}%)">
+        <span>${escapeHtml(plano.length > 18 ? plano.slice(0,16) + '…' : plano)}</span>
+      </div>`;
+  }).join('');
+
+  bar.innerHTML = segments;
+
+  let cum = 0;
+  legend.innerHTML = entries.map(([plano, count], idx) => {
+    cum += count;
+    const color = palette[idx % palette.length];
+    const pctAcum = ((cum / totalComPlano) * 100).toFixed(1);
+    return `<span class="planos-leg-item" title="${escapeHtml(plano)}: ${count} (${pctAcum}% acumulado)">
+      <span class="planos-leg-swatch" style="background:${color}"></span>
+      <span class="planos-leg-name">${escapeHtml(plano)}</span>
+      <span class="planos-leg-count">${count}</span>
+      <span class="planos-leg-cum">${pctAcum}% acum.</span>
+    </span>`;
+  }).join('');
+
+  info.innerHTML = `Total acumulado: <b>${totalComPlano}</b> NIP(s) em <b>${entries.length}</b> plano(s)`;
+}
+
+/* ============================================================
+   PLANOS DISTINTOS — TOTAIS INDIVIDUAIS
+   ============================================================ */
+function renderPlanosDistintos(rows) {
+  const grid = $('planosDistintosGrid');
+  const tag  = $('planosDistintosTag');
+  const sub  = $('planosDistintosSub');
+
+  const porPlano = countBy(rows.filter(r => r.plano && String(r.plano).trim()), 'plano');
+  const entries = Object.entries(porPlano).sort((a,b) => b[1] - a[1]);
+  const totalComPlano = entries.reduce((s, [,v]) => s + v, 0);
+
+  tag.textContent = `${entries.length} plano(s)`;
+  sub.textContent = entries.length
+    ? `${totalComPlano} NIP(s) distribuídas em ${entries.length} categoria(s) de plano`
+    : 'Cada plano com seu total individual de NIPs';
+
+  if (!entries.length) {
+    grid.innerHTML = '<div class="plano-empty">Nenhum plano informado ainda. Preencha o campo "Plano do Beneficiário" ao editar os registros.</div>';
+    return;
+  }
+
+  const palette = ['#0B3D2E','#0E7A57','#10B981','#34D399','#6EE7B7','#14523E','#059669','#A7F3D0'];
+
+  grid.innerHTML = entries.map(([plano, count], idx) => {
+    const pct = ((count / totalComPlano) * 100);
+    const pctStr = pct.toFixed(1) + '%';
+    const color = palette[idx % palette.length];
+    const rank = idx + 1;
+    return `<div class="distinto-card" style="--card-color:${color}">
+      <div class="distinto-top">
+        <span class="distinto-name">${escapeHtml(plano)}</span>
+        <span class="distinto-badge">#${rank}</span>
+      </div>
+      <div class="distinto-count">${count}<small>NIP(s)</small></div>
+      <div class="distinto-bar"><span style="width:${pct.toFixed(2)}%;background:linear-gradient(90deg,${color},#34D399)"></span></div>
+      <div class="distinto-meta">
+        <span>${pctStr} do total</span>
+        <span>${count} de ${totalComPlano}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ============================================================
+   TABELA
+   ============================================================ */
+function renderTable(rows) {
+  const tb = $('tableBody');
+  if (!rows.length) {
+    tb.innerHTML = `<tr class="empty-row"><td colspan="12">Nenhum registro encontrado com os filtros aplicados.</td></tr>`;
+  } else {
+    tb.innerHTML = rows.map(r => {
+      const badge = r.natureza === 'Assistencial' ? 'badge-assist' : 'badge-nao-assist';
+      const areaCls = r.natureza === 'Assistencial' ? 'area-chip' : 'area-chip alt';
+      const planoHtml = r.plano ? `<span class="plano-chip">${escapeHtml(r.plano)}</span>` : '—';
+      return `<tr>
+        <td class="cell-date">${escapeHtml(formatDate(r.data))}</td>
+        <td class="cell-demanda">${escapeHtml(r.demanda)}</td>
+        <td class="cell-benef">${escapeHtml(r.beneficiario)}</td>
+        <td class="cell-plano">${planoHtml}</td>
+        <td class="cell-desc">${escapeHtml(r.descricao)}</td>
+        <td class="cell-obj">${escapeHtml(r.objeto)}</td>
+        <td>${escapeHtml(r.causa)}</td>
+        <td><span class="badge ${badge}">${escapeHtml(r.natureza)}</span></td>
+        <td>${r.area ? `<span class="${areaCls}">${escapeHtml(r.area)}</span>` : '—'}</td>
+        <td class="cell-regiao">${escapeHtml(r.regiao)}</td>
+        <td>${escapeHtml(r.obs || '—')}</td>
+        <td class="cell-actions">
+          <button class="btn-icon" title="Editar" onclick="openEdit(${r.id})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+          </button>
+          <button class="btn-icon del" title="Excluir" onclick="openDelete(${r.id})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          </button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+  $('tableCount').innerHTML = `Mostrando <b>${rows.length}</b> de <b>${records.length}</b> registros`;
+}
+
+/* ============================================================
+   GRÁFICOS
+   ============================================================ */
+Chart.defaults.font.family = "'Inter','Roboto',sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#6B7C77';
+
+const tooltipStyle = {
+  backgroundColor:'#062A20', titleColor:'#D1FAE5', bodyColor:'#FFFFFF',
+  padding:11, cornerRadius:9, displayColors:true, boxPadding:5,
+  titleFont:{weight:'700',size:12}, bodyFont:{weight:'500',size:12}
+};
+
+let chartNatureza, chartArea, chartRegiao, chartPlano;
+
+function buildCharts() {
+  chartNatureza = new Chart($('chartNatureza'), {
+    type:'doughnut',
+    data:{ labels:['Assistencial','Não assistencial'],
+      datasets:[{ data:[0,0], backgroundColor:['#10B981','#14523E'], hoverBackgroundColor:['#059669','#0B3D2E'], borderWidth:0, hoverOffset:10 }]},
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'66%',
+      plugins:{ legend:{ position:'bottom', labels:{ usePointStyle:true, pointStyle:'circle', padding:16, font:{size:12,weight:'600'} } },
+        tooltip:{ ...tooltipStyle, callbacks:{ label:(ctx)=>{ const t=ctx.dataset.data.reduce((a,b)=>a+b,0)||1; const p=Math.round((ctx.parsed/t)*100); return `  ${ctx.label}: ${ctx.parsed} (${p}%)`; } } } } }
+  });
+
+  chartArea = new Chart($('chartArea'), {
+    type:'bar',
+    data:{ labels:[], datasets:[{ label:'NIPs', data:[], backgroundColor:'#0E7A57', hoverBackgroundColor:'#10B981', borderRadius:8, maxBarThickness:24 }]},
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ ...tooltipStyle, callbacks:{ label:(ctx)=>`  ${ctx.parsed.x} notificação(ões)` } } },
+      scales:{ x:{ beginAtZero:true, ticks:{precision:0,font:{weight:'600'}}, grid:{color:'#E8EEEC',drawBorder:false} },
+        y:{ grid:{display:false}, ticks:{font:{weight:'700',size:10}} } } }
+  });
+
+  chartRegiao = new Chart($('chartRegiao'), {
+    type:'bar',
+    data:{ labels:[], datasets:[{ label:'NIPs', data:[], backgroundColor:'#10B981', hoverBackgroundColor:'#059669', borderRadius:8, maxBarThickness:40 }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ ...tooltipStyle, callbacks:{ label:(ctx)=>`  ${ctx.parsed.y} notificação(ões)` } } },
+      scales:{ y:{ beginAtZero:true, ticks:{precision:0,font:{weight:'600'}}, grid:{color:'#E8EEEC',drawBorder:false} },
+        x:{ grid:{display:false}, ticks:{font:{weight:'600',size:9}, maxRotation:40, minRotation:0, autoSkip:false} } } }
+  });
+
+  chartPlano = new Chart($('chartPlano'), {
+    type:'bar',
+    data:{ labels:[], datasets:[{ label:'NIPs', data:[], backgroundColor:'#34D399', hoverBackgroundColor:'#10B981', borderRadius:8, maxBarThickness:24 }]},
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ ...tooltipStyle, callbacks:{ label:(ctx)=>`  ${ctx.parsed.x} notificação(ões)` } } },
+      scales:{ x:{ beginAtZero:true, ticks:{precision:0,font:{weight:'600'}}, grid:{color:'#E8EEEC',drawBorder:false} },
+        y:{ grid:{display:false}, ticks:{font:{weight:'700',size:11}} } } }
+  });
+}
+
+function updateCharts(rows) {
+  const a = rows.filter(r=>r.natureza==='Assistencial').length;
+  const n = rows.filter(r=>r.natureza==='Não assistencial').length;
+  chartNatureza.data.datasets[0].data = [a,n];
+  chartNatureza.update();
+
+  const porArea = countBy(rows,'area');
+  const areasOrd = Object.entries(porArea).sort((x,y)=>y[1]-x[1]);
+  chartArea.data.labels = areasOrd.map(([k])=>k || '—');
+  chartArea.data.datasets[0].data = areasOrd.map(([,v])=>v);
+  chartArea.update();
+
+  const porReg = countBy(rows,'regiao');
+  const regOrd = Object.entries(porReg).sort((x,y)=>y[1]-x[1]).slice(0,12);
+  chartRegiao.data.labels = regOrd.map(([k])=>k);
+  chartRegiao.data.datasets[0].data = regOrd.map(([,v])=>v);
+  chartRegiao.update();
+
+  const porPlano = countBy(rows.filter(r => r.plano && String(r.plano).trim()), 'plano');
+  const planoOrd = Object.entries(porPlano).sort((x,y)=>y[1]-x[1]);
+  chartPlano.data.labels = planoOrd.map(([k])=>k);
+  chartPlano.data.datasets[0].data = planoOrd.map(([,v])=>v);
+  chartPlano.update();
+}
+
+function renderAll() {
+  const rows = getFiltered();
+  updateKPIs(rows);
+  renderTable(rows);
+  updateCharts(rows);
+}
+
+/* ============================================================
+   FORMULÁRIO — ADICIONAR
+   ============================================================ */
+$('nipForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const data = $('fData').value;
+  const demanda = $('fDemanda').value.trim();
+  const beneficiario = $('fBeneficiario').value.trim();
+  const plano = $('fPlano').value.trim();
+  const natureza = $('fNatureza').value;
+  const objeto = $('fObjeto').value.trim();
+  const causa = $('fCausa').value.trim();
+  const area = $('fArea').value.trim();
+  const regiao = $('fRegiao').value.trim();
+  const descricao = $('fDescricao').value.trim();
+  const obs = $('fObs').value.trim();
+
+  const missing = [];
+  if (!data) missing.push('Data');
+  if (!demanda) missing.push('Nº Demanda');
+  if (!beneficiario) missing.push('Beneficiário');
+  if (!natureza) missing.push('Natureza');
+  if (!objeto) missing.push('Objeto');
+  if (!causa) missing.push('Causa');
+  if (!area) missing.push('Área');
+  if (!regiao) missing.push('Região');
+  if (!descricao) missing.push('Descrição');
+
+  if (missing.length) { showToast('Preencha: ' + missing.join(', '), 'error'); return; }
+  if (records.some(r => r.demanda === demanda)) { showToast(`Nº Demanda ${demanda} já cadastrado.`, 'error'); return; }
+
+  records.push({ id: nextId++, data, demanda, beneficiario, plano, descricao, objeto, causa, natureza, area, regiao, obs });
+  refreshFilterOptions();
+  renderAll();
+  await persist();
+
+  e.target.reset();
+  $('fData').value = todayISO();
+  showToast(`NIP ${demanda} adicionada com sucesso!`);
+});
+
+$('btnClear').addEventListener('click', () => setTimeout(() => { $('fData').value = todayISO(); }, 0));
+
+$('toggleForm').addEventListener('click', () => {
+  const collapsed = $('nipForm').classList.toggle('collapsed');
+  $('toggleFormLabel').textContent = collapsed ? 'Mostrar formulário' : 'Ocultar formulário';
+});
+
+$('btnToggleMenu').addEventListener('click', () => {
+  const c = $('mainContainer');
+  const hidden = c.classList.toggle('hidden');
+  showToast(hidden ? 'Menu ocultado.' : 'Menu exibido.', 'warn');
+});
+
+/* ============================================================
+   MODAL DE EDIÇÃO
+   ============================================================ */
+function openEdit(id) {
+  const r = records.find(x => x.id === id);
+  if (!r) return;
+
+  $('eId').value = r.id;
+  $('eData').value = r.data;
+  $('eDemanda').value = r.demanda;
+  $('eBeneficiario').value = r.beneficiario;
+  $('ePlano').value = r.plano || '';
+  $('eNatureza').value = r.natureza;
+  $('eObjeto').value = r.objeto;
+  $('eCausa').value = r.causa;
+  $('eArea').value = r.area;
+  $('eRegiao').value = r.regiao;
+  $('eDescricao').value = r.descricao;
+  $('eObs').value = r.obs || '';
+
+  $('editModal').classList.add('active');
+}
+
+function closeEdit() { $('editModal').classList.remove('active'); }
+
+$('editModalClose').addEventListener('click', closeEdit);
+$('editCancel').addEventListener('click', closeEdit);
+$('editModal').addEventListener('click', (e) => { if (e.target.id === 'editModal') closeEdit(); });
+
+$('editForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = parseInt($('eId').value, 10);
+  const idx = records.findIndex(r => r.id === id);
+  if (idx < 0) return;
+
+  const updated = {
+    ...records[idx],
+    data: $('eData').value,
+    demanda: $('eDemanda').value.trim(),
+    beneficiario: $('eBeneficiario').value.trim(),
+    plano: $('ePlano').value.trim(),
+    natureza: $('eNatureza').value,
+    objeto: $('eObjeto').value.trim(),
+    causa: $('eCausa').value.trim(),
+    area: $('eArea').value.trim(),
+    regiao: $('eRegiao').value.trim(),
+    descricao: $('eDescricao').value.trim(),
+    obs: $('eObs').value.trim()
+  };
+
+  if (records.some(r => r.id !== id && r.demanda === updated.demanda)) {
+    showToast(`Nº Demanda ${updated.demanda} já pertence a outro registro.`, 'error');
+    return;
+  }
+
+  records[idx] = updated;
+  refreshFilterOptions();
+  renderAll();
+  await persist();
+  closeEdit();
+  showToast(`NIP ${updated.demanda} atualizada com sucesso!`);
+});
+
+/* ============================================================
+   MODAL DE EXCLUSÃO
+   ============================================================ */
+function openDelete(id) {
+  const r = records.find(x => x.id === id);
+  if (!r) return;
+  recordToDelete = id;
+  $('deleteRecInfo').innerHTML = `
+    <b>Nº Demanda: ${escapeHtml(r.demanda)}</b>
+    Beneficiário: ${escapeHtml(r.beneficiario)}<br>
+    Data: ${escapeHtml(formatDate(r.data))} · Natureza: ${escapeHtml(r.natureza)}
+    ${r.plano ? `<br>Plano: ${escapeHtml(r.plano)}` : ''}
+  `;
+  $('deleteModal').classList.add('active');
+}
+
+function closeDelete() {
+  $('deleteModal').classList.remove('active');
+  recordToDelete = null;
+}
+
+$('deleteCancel').addEventListener('click', closeDelete);
+$('deleteModal').addEventListener('click', (e) => { if (e.target.id === 'deleteModal') closeDelete(); });
+
+$('deleteConfirm').addEventListener('click', async () => {
+  if (recordToDelete == null) return;
+  const id = recordToDelete;
+  const idx = records.findIndex(r => r.id === id);
+  if (idx < 0) { closeDelete(); return; }
+  const demanda = records[idx].demanda;
+  records.splice(idx, 1);
+  refreshFilterOptions();
+  renderAll();
+  await persist();
+  closeDelete();
+  showToast(`NIP ${demanda} excluída permanentemente.`, 'warn');
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { closeEdit(); closeDelete(); }
+});
+
+/* ============================================================
+   FILTROS - EVENTOS
+   ============================================================ */
+['search','filterPlano','filterNatureza','filterArea','filterRegiao','dateFrom','dateTo'].forEach(id => {
+  $(id).addEventListener('input', renderAll);
+  $(id).addEventListener('change', renderAll);
+});
+
+$('btnResetFilters').addEventListener('click', () => {
+  $('search').value = '';
+  $('filterPlano').value = '';
+  $('filterNatureza').value = '';
+  $('filterArea').value = '';
+  $('filterRegiao').value = '';
+  $('dateFrom').value = '';
+  $('dateTo').value = '';
+  renderAll();
+  showToast('Filtros redefinidos.');
+});
+
+/* ============================================================
+   EXPORTAÇÃO CSV
+   ============================================================ */
+function csvCell(v){ return `"${String(v??'').replace(/"/g,'""')}"`; }
+
+$('btnExportCSV').addEventListener('click', () => {
+  const rows = getFiltered();
+  if (!rows.length) { showToast('Sem registros para exportar.', 'error'); return; }
+  const headers = ['Data de Notificação','Nº Demanda','Beneficiário','Plano','Descrição da Demanda','Objeto','Causa','Natureza','Área Envolvida','Região','Observação'];
+  const lines = [headers.join(';')].concat(rows.map(r =>
+    [formatDate(r.data), r.demanda, r.beneficiario, r.plano, r.descricao, r.objeto, r.causa, r.natureza, r.area, r.regiao, r.obs]
+      .map(csvCell).join(';')
+  ));
+  const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `NIPs_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast(`${rows.length} registro(s) exportado(s) para CSV.`);
+});
+
+/* ============================================================
+   EXPORTAÇÃO EXCEL
+   ============================================================ */
+$('btnExportExcel').addEventListener('click', () => {
+  const rows = getFiltered();
+  if (!rows.length) { showToast('Sem registros para exportar.', 'error'); return; }
+  const data = rows.map(r => ({
+    'Data de Notificação': formatDate(r.data),
+    'Nº Demanda': r.demanda,
+    'Beneficiário': r.beneficiario,
+    'Plano': r.plano || '',
+    'Descrição da Demanda': r.descricao,
+    'Objeto': r.objeto,
+    'Causa': r.causa,
+    'Natureza': r.natureza,
+    'Área Envolvida': r.area,
+    'Região': r.regiao,
+    'Observação': r.obs || ''
+  }));
+  const ws = XLSX.utils.json_to_sheet(data, { header: ['Data de Notificação','Nº Demanda','Beneficiário','Plano','Descrição da Demanda','Objeto','Causa','Natureza','Área Envolvida','Região','Observação'] });
+  ws['!cols'] = [{wch:14},{wch:13},{wch:32},{wch:24},{wch:70},{wch:32},{wch:24},{wch:16},{wch:18},{wch:22},{wch:24}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'NIPs');
+  XLSX.writeFile(wb, `Relatorio_NIP_${new Date().toISOString().slice(0,10)}.xlsx`);
+  showToast(`${rows.length} registro(s) exportado(s) para Excel.`);
+});
+
+/* ============================================================
+   EXPORTAÇÃO PDF — texto completo, sem cortes
+   ============================================================ */
+$('btnExportPDF').addEventListener('click', () => {
+  const rows = getFiltered();
+  if (!rows.length) { showToast('Sem registros para exportar.', 'error'); return; }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'landscape', unit:'pt', format:'a4' });
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+
+  const from = $('dateFrom').value, to = $('dateTo').value;
+  const rangeTxt = (from || to)
+    ? `Período: ${from ? formatDate(from) : '...'} a ${to ? formatDate(to) : '...'}`
+    : 'Período: todos os registros';
+
+  doc.setFillColor(11, 61, 46);
+  doc.rect(0, 0, pageW, 78, 'F');
+  doc.setTextColor(209, 250, 229);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16);
+  doc.text('Relatório Executivo — NIP', 40, 32);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.setTextColor(255, 255, 255);
+  doc.text('Notificações de Intermediação Preliminar · IPASGO Saúde', 40, 50);
+  doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 40, 66);
+
+  doc.setTextColor(29, 43, 39);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.text(rangeTxt, 40, 100);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Total de registros: ${rows.length}`, 40, 116);
+
+  const assist = rows.filter(r => r.natureza === 'Assistencial').length;
+  const nao    = rows.filter(r => r.natureza === 'Não assistencial').length;
+  const areas  = uniqueSorted(rows.map(r => r.area)).length;
+  const regioes = uniqueSorted(rows.map(r => r.regiao)).length;
+  const planos  = uniqueSorted(rows.map(r => r.plano)).length;
+
+  doc.setTextColor(14, 122, 87);
+  doc.setFontSize(9);
+  doc.text(`Assistenciais: ${assist}`, 40, 132);
+  doc.text(`Não Assistenciais: ${nao}`, 180, 132);
+  doc.text(`Áreas: ${areas}`, 340, 132);
+  doc.text(`Regiões: ${regioes}`, 440, 132);
+  doc.text(`Planos: ${planos}`, 560, 132);
+
+  doc.setFontSize(8);
+  doc.setTextColor(120, 130, 127);
+  doc.text('Todas as descrições são exibidas na íntegra, sem cortes.', 40, 148);
+
+  const body = [];
+  const rowTypes = [];
+
+  rows.forEach((r) => {
+    body.push([
+      { content: formatDate(r.data), styles: { fontStyle:'bold', textColor:[11,61,46] } },
+      { content: r.demanda,          styles: { fontStyle:'bold', textColor:[14,122,87] } },
+      { content: r.beneficiario,     styles: { fontStyle:'bold', textColor:[29,43,39] } },
+      { content: r.natureza,         styles: { textColor: r.natureza === 'Assistencial' ? [5,150,105] : [20,82,62] } },
+      { content: r.area || '—',      styles: { textColor: [20,82,62] } },
+      { content: r.regiao || '—',    styles: { textColor: [61,79,74] } }
+    ]);
+    rowTypes.push('main');
+
+    if (r.plano && String(r.plano).trim()) {
+      body.push([{ content: 'Plano do Beneficiário: ' + r.plano, colSpan: 6 }]);
+      rowTypes.push('plano');
+    }
+
+    body.push([{ content: 'Descrição: ' + (r.descricao || '—'), colSpan: 6 }]);
+    rowTypes.push('desc');
+
+    body.push([
+      { content: 'Objeto: ' + (r.objeto || '—'), colSpan: 3 },
+      { content: 'Causa: '  + (r.causa  || '—'), colSpan: 3 }
+    ]);
+    rowTypes.push('obj');
+
+    if (r.obs && String(r.obs).trim()) {
+      body.push([{ content: 'Observação: ' + r.obs, colSpan: 6 }]);
+      rowTypes.push('obs');
+    }
+  });
+
+  doc.autoTable({
+    startY: 162,
+    head: [['Data','Nº Demanda','Beneficiário','Natureza','Área Envolvida','Região']],
+    body: body,
+    theme: 'grid',
+    styles: {
+      font:'helvetica', fontSize:8, cellPadding:5,
+      overflow:'linebreak', valign:'top',
+      textColor:[61,79,74], lineColor:[232,238,236], lineWidth:0.4
+    },
+    headStyles: { fillColor:[11,61,46], textColor:[234,251,244], fontStyle:'bold', fontSize:9, halign:'left' },
+    alternateRowStyles: { fillColor:[255,255,255] },
+    columnStyles: {
+      0:{cellWidth:62}, 1:{cellWidth:68}, 2:{cellWidth:200},
+      3:{cellWidth:78}, 4:{cellWidth:100}, 5:{cellWidth:'auto'}
+    },
+    margin: { left:30, right:30, top:20, bottom:40 },
+    rowPageBreak: 'auto',
+    didParseCell: (data) => {
+      if (data.section !== 'body') return;
+      const t = rowTypes[data.row.index];
+      if (t === 'main')       data.cell.styles.fillColor = [255,255,255];
+      else if (t === 'plano') data.cell.styles.fillColor = [209,250,229];
+      else if (t === 'desc')  data.cell.styles.fillColor = [244,247,246];
+      else if (t === 'obj')   data.cell.styles.fillColor = [250,252,251];
+      else if (t === 'obs')   data.cell.styles.fillColor = [254,249,195];
+    }
+  });
+
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(150);
+    doc.text('IPASGO Saúde · Dashboard NIP', 40, pageH - 15);
+    doc.text(`Página ${i} de ${pageCount}`, pageW - 90, pageH - 15);
+  }
+
+  doc.save(`Relatorio_NIP_${new Date().toISOString().slice(0,10)}.pdf`);
+  showToast(`${rows.length} registro(s) exportado(s) para PDF — texto completo.`);
+});
+
+$('btnPrint').addEventListener('click', () => window.print());
+
+/* ============================================================
+   INICIALIZAÇÃO
+   ============================================================ */
+(async function init() {
+  $('filterNatureza').innerHTML = '<option value="">Todas as naturezas</option><option value="Assistencial">Assistencial</option><option value="Não assistencial">Não assistencial</option>';
+  $('fData').value = todayISO();
+
+  let serverRecords = null;
+  if (API_URL) {
+    setSyncStatus('offline', 'Conectando ao servidor...');
+    serverRecords = await loadFromServer();
+  }
+
+  records = serverRecords || loadFromLocal() || buildInitial();
+  records.forEach(r => {
+    r.natureza = normalizeNat(r.natureza);
+    if (!('plano' in r)) r.plano = '';
+  });
+  nextId = records.reduce((m, r) => Math.max(m, r.id || 0), 0) + 1;
+
+  refreshFilterOptions();
+  buildCharts();
+  renderAll();
+
+  if (serverRecords) {
+    setSyncStatus('online', `${records.length} NIP(s) · sincronizado do servidor`);
+    $('saveStatus').textContent = `Sincronizado do servidor · ${records.length} regs`;
+  } else {
+    setSyncStatus('offline', `${records.length} NIP(s) · modo local`);
+    const ts = localStorage.getItem(STORAGE_TS);
+    if (ts) {
+      const d = new Date(ts);
+      $('saveStatus').textContent = `Salvo · ${records.length} regs · ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`;
+    } else {
+      $('saveStatus').textContent = `Base inicial · ${records.length} registros`;
+      await persist();
+    }
+  }
+})();
+
+window.openEdit = openEdit;
+window.openDelete = openDelete;
+</script>
+</body>
+</html>
